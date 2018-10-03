@@ -1,0 +1,8 @@
+/home/cristian/robocomp/components/mycomponents/src/build/CMakeFiles/install/strip.dir
+/home/cristian/robocomp/components/mycomponents/src/build/CMakeFiles/edit_cache.dir
+/home/cristian/robocomp/components/mycomponents/src/build/CMakeFiles/MyFirstComp.dir
+/home/cristian/robocomp/components/mycomponents/src/build/CMakeFiles/rebuild_cache.dir
+/home/cristian/robocomp/components/mycomponents/src/build/CMakeFiles/list_install_components.dir
+/home/cristian/robocomp/components/mycomponents/src/build/CMakeFiles/install/local.dir
+/home/cristian/robocomp/components/mycomponents/src/build/CMakeFiles/install.dir
+/home/cristian/robocomp/components/mycomponents/src/build/CMakeFiles/MyFirstComp_autogen.dir
