@@ -4,20 +4,20 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/cristian/robocomp/components/mycomponents/src/CommonBehavior.cpp" "/home/cristian/robocomp/components/mycomponents/src/CMakeFiles/MyFirstComp.dir/CommonBehavior.cpp.o"
-  "/home/cristian/robocomp/components/mycomponents/src/DifferentialRobot.cpp" "/home/cristian/robocomp/components/mycomponents/src/CMakeFiles/MyFirstComp.dir/DifferentialRobot.cpp.o"
-  "/home/cristian/robocomp/components/mycomponents/src/GenericBase.cpp" "/home/cristian/robocomp/components/mycomponents/src/CMakeFiles/MyFirstComp.dir/GenericBase.cpp.o"
-  "/home/cristian/robocomp/components/mycomponents/src/Laser.cpp" "/home/cristian/robocomp/components/mycomponents/src/CMakeFiles/MyFirstComp.dir/Laser.cpp.o"
-  "/home/cristian/robocomp/components/mycomponents/src/MyFirstComp_autogen/mocs_compilation.cpp" "/home/cristian/robocomp/components/mycomponents/src/CMakeFiles/MyFirstComp.dir/MyFirstComp_autogen/mocs_compilation.cpp.o"
-  "/home/cristian/robocomp/components/mycomponents/src/commonbehaviorI.cpp" "/home/cristian/robocomp/components/mycomponents/src/CMakeFiles/MyFirstComp.dir/commonbehaviorI.cpp.o"
-  "/home/cristian/robocomp/components/mycomponents/src/genericmonitor.cpp" "/home/cristian/robocomp/components/mycomponents/src/CMakeFiles/MyFirstComp.dir/genericmonitor.cpp.o"
-  "/home/cristian/robocomp/components/mycomponents/src/genericworker.cpp" "/home/cristian/robocomp/components/mycomponents/src/CMakeFiles/MyFirstComp.dir/genericworker.cpp.o"
-  "/home/cristian/robocomp/classes/qlog/qlog.cpp" "/home/cristian/robocomp/components/mycomponents/src/CMakeFiles/MyFirstComp.dir/home/cristian/robocomp/classes/qlog/qlog.cpp.o"
-  "/home/cristian/robocomp/classes/rapplication/rapplication.cpp" "/home/cristian/robocomp/components/mycomponents/src/CMakeFiles/MyFirstComp.dir/home/cristian/robocomp/classes/rapplication/rapplication.cpp.o"
-  "/home/cristian/robocomp/classes/sigwatch/sigwatch.cpp" "/home/cristian/robocomp/components/mycomponents/src/CMakeFiles/MyFirstComp.dir/home/cristian/robocomp/classes/sigwatch/sigwatch.cpp.o"
-  "/home/cristian/robocomp/components/mycomponents/src/main.cpp" "/home/cristian/robocomp/components/mycomponents/src/CMakeFiles/MyFirstComp.dir/main.cpp.o"
-  "/home/cristian/robocomp/components/mycomponents/src/specificmonitor.cpp" "/home/cristian/robocomp/components/mycomponents/src/CMakeFiles/MyFirstComp.dir/specificmonitor.cpp.o"
-  "/home/cristian/robocomp/components/mycomponents/src/specificworker.cpp" "/home/cristian/robocomp/components/mycomponents/src/CMakeFiles/MyFirstComp.dir/specificworker.cpp.o"
+  "/home/cristian/robocomp/components/pruebaComp/src/CommonBehavior.cpp" "/home/cristian/robocomp/components/pruebaComp/src/CMakeFiles/MyFirstComp.dir/CommonBehavior.cpp.o"
+  "/home/cristian/robocomp/components/pruebaComp/src/DifferentialRobot.cpp" "/home/cristian/robocomp/components/pruebaComp/src/CMakeFiles/MyFirstComp.dir/DifferentialRobot.cpp.o"
+  "/home/cristian/robocomp/components/pruebaComp/src/GenericBase.cpp" "/home/cristian/robocomp/components/pruebaComp/src/CMakeFiles/MyFirstComp.dir/GenericBase.cpp.o"
+  "/home/cristian/robocomp/components/pruebaComp/src/Laser.cpp" "/home/cristian/robocomp/components/pruebaComp/src/CMakeFiles/MyFirstComp.dir/Laser.cpp.o"
+  "/home/cristian/robocomp/components/pruebaComp/src/MyFirstComp_autogen/mocs_compilation.cpp" "/home/cristian/robocomp/components/pruebaComp/src/CMakeFiles/MyFirstComp.dir/MyFirstComp_autogen/mocs_compilation.cpp.o"
+  "/home/cristian/robocomp/components/pruebaComp/src/commonbehaviorI.cpp" "/home/cristian/robocomp/components/pruebaComp/src/CMakeFiles/MyFirstComp.dir/commonbehaviorI.cpp.o"
+  "/home/cristian/robocomp/components/pruebaComp/src/genericmonitor.cpp" "/home/cristian/robocomp/components/pruebaComp/src/CMakeFiles/MyFirstComp.dir/genericmonitor.cpp.o"
+  "/home/cristian/robocomp/components/pruebaComp/src/genericworker.cpp" "/home/cristian/robocomp/components/pruebaComp/src/CMakeFiles/MyFirstComp.dir/genericworker.cpp.o"
+  "/home/cristian/robocomp/classes/qlog/qlog.cpp" "/home/cristian/robocomp/components/pruebaComp/src/CMakeFiles/MyFirstComp.dir/home/cristian/robocomp/classes/qlog/qlog.cpp.o"
+  "/home/cristian/robocomp/classes/rapplication/rapplication.cpp" "/home/cristian/robocomp/components/pruebaComp/src/CMakeFiles/MyFirstComp.dir/home/cristian/robocomp/classes/rapplication/rapplication.cpp.o"
+  "/home/cristian/robocomp/classes/sigwatch/sigwatch.cpp" "/home/cristian/robocomp/components/pruebaComp/src/CMakeFiles/MyFirstComp.dir/home/cristian/robocomp/classes/sigwatch/sigwatch.cpp.o"
+  "/home/cristian/robocomp/components/pruebaComp/src/main.cpp" "/home/cristian/robocomp/components/pruebaComp/src/CMakeFiles/MyFirstComp.dir/main.cpp.o"
+  "/home/cristian/robocomp/components/pruebaComp/src/specificmonitor.cpp" "/home/cristian/robocomp/components/pruebaComp/src/CMakeFiles/MyFirstComp.dir/specificmonitor.cpp.o"
+  "/home/cristian/robocomp/components/pruebaComp/src/specificworker.cpp" "/home/cristian/robocomp/components/pruebaComp/src/CMakeFiles/MyFirstComp.dir/specificworker.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
@@ -52,10 +52,10 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
 
 # Pairs of files generated by the same build rule.
 set(CMAKE_MULTIPLE_OUTPUT_PAIRS
-  "/home/cristian/robocomp/components/mycomponents/src/CommonBehavior.h" "/home/cristian/robocomp/components/mycomponents/src/CommonBehavior.cpp"
-  "/home/cristian/robocomp/components/mycomponents/src/DifferentialRobot.h" "/home/cristian/robocomp/components/mycomponents/src/DifferentialRobot.cpp"
-  "/home/cristian/robocomp/components/mycomponents/src/GenericBase.h" "/home/cristian/robocomp/components/mycomponents/src/GenericBase.cpp"
-  "/home/cristian/robocomp/components/mycomponents/src/Laser.h" "/home/cristian/robocomp/components/mycomponents/src/Laser.cpp"
+  "/home/cristian/robocomp/components/pruebaComp/src/CommonBehavior.h" "/home/cristian/robocomp/components/pruebaComp/src/CommonBehavior.cpp"
+  "/home/cristian/robocomp/components/pruebaComp/src/DifferentialRobot.h" "/home/cristian/robocomp/components/pruebaComp/src/DifferentialRobot.cpp"
+  "/home/cristian/robocomp/components/pruebaComp/src/GenericBase.h" "/home/cristian/robocomp/components/pruebaComp/src/GenericBase.cpp"
+  "/home/cristian/robocomp/components/pruebaComp/src/Laser.h" "/home/cristian/robocomp/components/pruebaComp/src/Laser.cpp"
   )
 
 

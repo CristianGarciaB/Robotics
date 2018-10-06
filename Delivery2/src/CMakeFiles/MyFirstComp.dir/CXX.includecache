@@ -68,7 +68,7 @@ QObject
 signal.h
 -
 
-/home/cristian/robocomp/components/mycomponents/src/CommonBehavior.cpp
+/home/cristian/robocomp/components/pruebaComp/src/CommonBehavior.cpp
 CommonBehavior.h
 -
 IceUtil/PushDisableWarnings.h
@@ -86,7 +86,7 @@ Ice/OutputStream.h
 IceUtil/PopDisableWarnings.h
 -
 
-/home/cristian/robocomp/components/mycomponents/src/DifferentialRobot.cpp
+/home/cristian/robocomp/components/pruebaComp/src/DifferentialRobot.cpp
 DifferentialRobot.h
 -
 IceUtil/PushDisableWarnings.h
@@ -106,7 +106,7 @@ Ice/LocalException.h
 IceUtil/PopDisableWarnings.h
 -
 
-/home/cristian/robocomp/components/mycomponents/src/GenericBase.cpp
+/home/cristian/robocomp/components/pruebaComp/src/GenericBase.cpp
 GenericBase.h
 -
 IceUtil/PushDisableWarnings.h
@@ -126,7 +126,7 @@ Ice/LocalException.h
 IceUtil/PopDisableWarnings.h
 -
 
-/home/cristian/robocomp/components/mycomponents/src/Laser.cpp
+/home/cristian/robocomp/components/pruebaComp/src/Laser.cpp
 Laser.h
 -
 IceUtil/PushDisableWarnings.h
@@ -146,37 +146,37 @@ Ice/LocalException.h
 IceUtil/PopDisableWarnings.h
 -
 
-/home/cristian/robocomp/components/mycomponents/src/MyFirstComp_autogen/EWIEGA46WW/moc_genericmonitor.cpp
+/home/cristian/robocomp/components/pruebaComp/src/MyFirstComp_autogen/EWIEGA46WW/moc_genericmonitor.cpp
 ../../genericmonitor.h
-/home/cristian/robocomp/components/mycomponents/src/genericmonitor.h
+/home/cristian/robocomp/components/pruebaComp/src/genericmonitor.h
 
-/home/cristian/robocomp/components/mycomponents/src/MyFirstComp_autogen/EWIEGA46WW/moc_genericworker.cpp
+/home/cristian/robocomp/components/pruebaComp/src/MyFirstComp_autogen/EWIEGA46WW/moc_genericworker.cpp
 ../../genericworker.h
-/home/cristian/robocomp/components/mycomponents/src/genericworker.h
+/home/cristian/robocomp/components/pruebaComp/src/genericworker.h
 
-/home/cristian/robocomp/components/mycomponents/src/MyFirstComp_autogen/EWIEGA46WW/moc_specificmonitor.cpp
+/home/cristian/robocomp/components/pruebaComp/src/MyFirstComp_autogen/EWIEGA46WW/moc_specificmonitor.cpp
 ../../specificmonitor.h
-/home/cristian/robocomp/components/mycomponents/src/specificmonitor.h
+/home/cristian/robocomp/components/pruebaComp/src/specificmonitor.h
 
-/home/cristian/robocomp/components/mycomponents/src/MyFirstComp_autogen/EWIEGA46WW/moc_specificworker.cpp
+/home/cristian/robocomp/components/pruebaComp/src/MyFirstComp_autogen/EWIEGA46WW/moc_specificworker.cpp
 ../../specificworker.h
-/home/cristian/robocomp/components/mycomponents/src/specificworker.h
+/home/cristian/robocomp/components/pruebaComp/src/specificworker.h
 
-/home/cristian/robocomp/components/mycomponents/src/MyFirstComp_autogen/mocs_compilation.cpp
+/home/cristian/robocomp/components/pruebaComp/src/MyFirstComp_autogen/mocs_compilation.cpp
 EWIEGA46WW/moc_genericmonitor.cpp
-/home/cristian/robocomp/components/mycomponents/src/MyFirstComp_autogen/EWIEGA46WW/moc_genericmonitor.cpp
+/home/cristian/robocomp/components/pruebaComp/src/MyFirstComp_autogen/EWIEGA46WW/moc_genericmonitor.cpp
 EWIEGA46WW/moc_genericworker.cpp
-/home/cristian/robocomp/components/mycomponents/src/MyFirstComp_autogen/EWIEGA46WW/moc_genericworker.cpp
+/home/cristian/robocomp/components/pruebaComp/src/MyFirstComp_autogen/EWIEGA46WW/moc_genericworker.cpp
 EWIEGA46WW/moc_specificmonitor.cpp
-/home/cristian/robocomp/components/mycomponents/src/MyFirstComp_autogen/EWIEGA46WW/moc_specificmonitor.cpp
+/home/cristian/robocomp/components/pruebaComp/src/MyFirstComp_autogen/EWIEGA46WW/moc_specificmonitor.cpp
 EWIEGA46WW/moc_specificworker.cpp
-/home/cristian/robocomp/components/mycomponents/src/MyFirstComp_autogen/EWIEGA46WW/moc_specificworker.cpp
+/home/cristian/robocomp/components/pruebaComp/src/MyFirstComp_autogen/EWIEGA46WW/moc_specificworker.cpp
 
-/home/cristian/robocomp/components/mycomponents/src/commonbehaviorI.cpp
+/home/cristian/robocomp/components/pruebaComp/src/commonbehaviorI.cpp
 commonbehaviorI.h
-/home/cristian/robocomp/components/mycomponents/src/commonbehaviorI.h
+/home/cristian/robocomp/components/pruebaComp/src/commonbehaviorI.h
 
-/home/cristian/robocomp/components/mycomponents/src/commonbehaviorI.h
+/home/cristian/robocomp/components/pruebaComp/src/commonbehaviorI.h
 Ice/Ice.h
 -
 CommonBehavior.h
@@ -184,37 +184,37 @@ CommonBehavior.h
 config.h
 -
 genericworker.h
-/home/cristian/robocomp/components/mycomponents/src/genericworker.h
+/home/cristian/robocomp/components/pruebaComp/src/genericworker.h
 genericmonitor.h
-/home/cristian/robocomp/components/mycomponents/src/genericmonitor.h
+/home/cristian/robocomp/components/pruebaComp/src/genericmonitor.h
 
-/home/cristian/robocomp/components/mycomponents/src/config.h
+/home/cristian/robocomp/components/pruebaComp/src/config.h
 
-/home/cristian/robocomp/components/mycomponents/src/genericmonitor.cpp
+/home/cristian/robocomp/components/pruebaComp/src/genericmonitor.cpp
 genericmonitor.h
-/home/cristian/robocomp/components/mycomponents/src/genericmonitor.h
+/home/cristian/robocomp/components/pruebaComp/src/genericmonitor.h
 
-/home/cristian/robocomp/components/mycomponents/src/genericmonitor.h
+/home/cristian/robocomp/components/pruebaComp/src/genericmonitor.h
 Ice/Ice.h
 -
 QtCore
 -
 genericworker.h
-/home/cristian/robocomp/components/mycomponents/src/genericworker.h
+/home/cristian/robocomp/components/pruebaComp/src/genericworker.h
 config.h
-/home/cristian/robocomp/components/mycomponents/src/config.h
+/home/cristian/robocomp/components/pruebaComp/src/config.h
 qlog/qlog.h
 -
 CommonBehavior.h
 -
 
-/home/cristian/robocomp/components/mycomponents/src/genericworker.cpp
+/home/cristian/robocomp/components/pruebaComp/src/genericworker.cpp
 genericworker.h
-/home/cristian/robocomp/components/mycomponents/src/genericworker.h
+/home/cristian/robocomp/components/pruebaComp/src/genericworker.h
 
-/home/cristian/robocomp/components/mycomponents/src/genericworker.h
+/home/cristian/robocomp/components/pruebaComp/src/genericworker.h
 config.h
-/home/cristian/robocomp/components/mycomponents/src/config.h
+/home/cristian/robocomp/components/pruebaComp/src/config.h
 QtGui
 -
 stdint.h
@@ -234,7 +234,7 @@ Laser.h
 GenericBase.h
 -
 
-/home/cristian/robocomp/components/mycomponents/src/main.cpp
+/home/cristian/robocomp/components/pruebaComp/src/main.cpp
 signal.h
 -
 QtCore
@@ -254,17 +254,17 @@ sigwatch/sigwatch.h
 qlog/qlog.h
 -
 config.h
-/home/cristian/robocomp/components/mycomponents/src/config.h
+/home/cristian/robocomp/components/pruebaComp/src/config.h
 genericmonitor.h
-/home/cristian/robocomp/components/mycomponents/src/genericmonitor.h
+/home/cristian/robocomp/components/pruebaComp/src/genericmonitor.h
 genericworker.h
-/home/cristian/robocomp/components/mycomponents/src/genericworker.h
+/home/cristian/robocomp/components/pruebaComp/src/genericworker.h
 specificworker.h
-/home/cristian/robocomp/components/mycomponents/src/specificworker.h
+/home/cristian/robocomp/components/pruebaComp/src/specificworker.h
 specificmonitor.h
-/home/cristian/robocomp/components/mycomponents/src/specificmonitor.h
+/home/cristian/robocomp/components/pruebaComp/src/specificmonitor.h
 commonbehaviorI.h
-/home/cristian/robocomp/components/mycomponents/src/commonbehaviorI.h
+/home/cristian/robocomp/components/pruebaComp/src/commonbehaviorI.h
 DifferentialRobot.h
 -
 GenericBase.h
@@ -274,19 +274,19 @@ Laser.h
 GenericBase.h
 -
 
-/home/cristian/robocomp/components/mycomponents/src/specificmonitor.cpp
+/home/cristian/robocomp/components/pruebaComp/src/specificmonitor.cpp
 specificmonitor.h
-/home/cristian/robocomp/components/mycomponents/src/specificmonitor.h
+/home/cristian/robocomp/components/pruebaComp/src/specificmonitor.h
 
-/home/cristian/robocomp/components/mycomponents/src/specificmonitor.h
+/home/cristian/robocomp/components/pruebaComp/src/specificmonitor.h
 genericmonitor.h
-/home/cristian/robocomp/components/mycomponents/src/genericmonitor.h
+/home/cristian/robocomp/components/pruebaComp/src/genericmonitor.h
 
-/home/cristian/robocomp/components/mycomponents/src/specificworker.cpp
+/home/cristian/robocomp/components/pruebaComp/src/specificworker.cpp
 specificworker.h
-/home/cristian/robocomp/components/mycomponents/src/specificworker.h
+/home/cristian/robocomp/components/pruebaComp/src/specificworker.h
 
-/home/cristian/robocomp/components/mycomponents/src/specificworker.h
+/home/cristian/robocomp/components/pruebaComp/src/specificworker.h
 genericworker.h
 -
 innermodel/innermodel.h

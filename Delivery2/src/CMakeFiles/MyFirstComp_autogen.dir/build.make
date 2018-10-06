@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/cristian/robocomp/components/mycomponents
+CMAKE_SOURCE_DIR = /home/cristian/robocomp/components/pruebaComp
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/cristian/robocomp/components/mycomponents
+CMAKE_BINARY_DIR = /home/cristian/robocomp/components/pruebaComp
 
 # Utility rule file for MyFirstComp_autogen.
 
@@ -54,8 +54,8 @@ CMAKE_BINARY_DIR = /home/cristian/robocomp/components/mycomponents
 include src/CMakeFiles/MyFirstComp_autogen.dir/progress.make
 
 src/CMakeFiles/MyFirstComp_autogen:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/cristian/robocomp/components/mycomponents/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Automatic MOC for target MyFirstComp"
-	cd /home/cristian/robocomp/components/mycomponents/src && /usr/bin/cmake -E cmake_autogen /home/cristian/robocomp/components/mycomponents/src/CMakeFiles/MyFirstComp_autogen.dir ""
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/cristian/robocomp/components/pruebaComp/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Automatic MOC for target MyFirstComp"
+	cd /home/cristian/robocomp/components/pruebaComp/src && /usr/bin/cmake -E cmake_autogen /home/cristian/robocomp/components/pruebaComp/src/CMakeFiles/MyFirstComp_autogen.dir ""
 
 MyFirstComp_autogen: src/CMakeFiles/MyFirstComp_autogen
 MyFirstComp_autogen: src/CMakeFiles/MyFirstComp_autogen.dir/build.make
@@ -68,10 +68,10 @@ src/CMakeFiles/MyFirstComp_autogen.dir/build: MyFirstComp_autogen
 .PHONY : src/CMakeFiles/MyFirstComp_autogen.dir/build
 
 src/CMakeFiles/MyFirstComp_autogen.dir/clean:
-	cd /home/cristian/robocomp/components/mycomponents/src && $(CMAKE_COMMAND) -P CMakeFiles/MyFirstComp_autogen.dir/cmake_clean.cmake
+	cd /home/cristian/robocomp/components/pruebaComp/src && $(CMAKE_COMMAND) -P CMakeFiles/MyFirstComp_autogen.dir/cmake_clean.cmake
 .PHONY : src/CMakeFiles/MyFirstComp_autogen.dir/clean
 
 src/CMakeFiles/MyFirstComp_autogen.dir/depend:
-	cd /home/cristian/robocomp/components/mycomponents && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/cristian/robocomp/components/mycomponents /home/cristian/robocomp/components/mycomponents/src /home/cristian/robocomp/components/mycomponents /home/cristian/robocomp/components/mycomponents/src /home/cristian/robocomp/components/mycomponents/src/CMakeFiles/MyFirstComp_autogen.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/cristian/robocomp/components/pruebaComp && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/cristian/robocomp/components/pruebaComp /home/cristian/robocomp/components/pruebaComp/src /home/cristian/robocomp/components/pruebaComp /home/cristian/robocomp/components/pruebaComp/src /home/cristian/robocomp/components/pruebaComp/src/CMakeFiles/MyFirstComp_autogen.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : src/CMakeFiles/MyFirstComp_autogen.dir/depend
 
