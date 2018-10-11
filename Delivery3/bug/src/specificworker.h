@@ -44,6 +44,50 @@ public slots:
 	void compute();
 
 private:
+    struct Target{
+        float x;
+        float z;
+    };
+    
+    struct SafeBuffer{
+        SafeBuffer(){
+         activo.store(false);   
+        }
+        void push (const Target &target){
+            std::lock_guard<std::mutex> g(myMutex);
+            myTarget = target;
+            activo = true;
+        }
+         inline bool isActive()const
+         {
+          return activo.load();   
+         }
+        Target pop (){
+            std::lock_guard<std::mutex> g(myMutex);
+            return myTarget;
+        }
+        
+        void setInactive()
+				{
+					
+				}
+        Target myTarget;
+        std::mutex myMutex;
+        std::atomic_bool activo;
+    };
+    SafeBuffer buffer;
+    
+  /*  
+    SafeBuffer buffer;
+    
+    buffer.push(Target {myPick.x, myPick.z});
+    
+    //aqui tenemos que pedir posiciones y tal
+    
+    if (buffer.is_empty ==false){ //si hay algo, hacer no se que con el buffer
+        
+    }*/
+    
 	InnerModel *innerModel;
 
 };

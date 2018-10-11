@@ -1,5 +1,5 @@
 CommonBehavior.Endpoints=tcp -p 11001
-
+InnerModelPath = /home/cristian/robocomp/files/innermodel/simpleworld.xml
 
 # Endpoints for subscriptions
 RCISMousePickerTopic.Endpoints=tcp -p 11005
