@@ -36,8 +36,6 @@ SpecificWorker::~SpecificWorker()
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
-	//       THE FOLLOWING IS JUST AN EXAMPLE
-	
 	try
 	{
 		RoboCompCommonBehavior::Parameter par = params.at("InnerModelPath");
@@ -63,20 +61,26 @@ void SpecificWorker::compute()
 	{
 		differentialrobot_proxy->getBaseState(bState);
 		innerModel->updateTransformValues("robot", bState.x, 0, bState.z, 0, bState.alpha, 0);
+		
 		if(buffer.isActive())
 		{
 			Target t = buffer.pop();
+			//Version de Pablo, comparar con la nuestra
 			QVec r = innerModel->transform("robot", QVec::vec3(t.x, 0, t.z),"world");
-			if (r.norm2() < 50)
+			
+			
+			if (r.norm2() < 50) //Si ha llegado al objetivo
 			{
 				differentialrobot_proxy->stopBase();
 				buffer.setInactive();
 			}
 			else
 			{
-				float rot = -atan2(r.z, r.x);
+				float rot = -atan2(r.z(), r.x());
 				float adv = r.norm2();
-				differentialrobot_proxy->setSpeedBase(k1*adv, k2*rot);
+				
+				
+				//differentialrobot_proxy->setSpeedBase(f1*f2*adv, k*rot);
 			}
 		}
 	}

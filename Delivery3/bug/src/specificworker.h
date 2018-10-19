@@ -49,28 +49,33 @@ private:
         float z;
     };
     
-    struct SafeBuffer{
-        SafeBuffer(){
-         activo.store(false);   
+    struct SafeBuffer {
+
+        SafeBuffer() {
+            activo.store(false);
         }
-        void push (const Target &target){
+
+        void push (const Target &target) {
             std::lock_guard<std::mutex> g(myMutex);
             myTarget = target;
             activo = true;
         }
-         inline bool isActive()const
-         {
-          return activo.load();   
-         }
-        Target pop (){
+
+        inline bool isActive()const
+        {
+            return activo.load();
+        }
+
+        Target pop () {
             std::lock_guard<std::mutex> g(myMutex);
             return myTarget;
         }
-        
+
         void setInactive()
-				{
-					
-				}
+        {
+						activo.store(false);
+        }
+
         Target myTarget;
         std::mutex myMutex;
         std::atomic_bool activo;
