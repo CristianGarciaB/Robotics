@@ -17,6 +17,7 @@
  *    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "specificworker.h"
+#include <math.h>
 
 /**
  * \brief Default constructor
@@ -60,15 +61,25 @@ void SpecificWorker::compute()
 	try
 	{
 		differentialrobot_proxy->getBaseState(bState);
-		innerModel->updateTransformValues("robot", bState.x, 0, bState.z, 0, bState.alpha, 0);
+		innerModel->updateTransformValues("base", bState.x, 0, bState.z, 0, bState.alpha, 0);
 		
 		if(buffer.isActive())
 		{
 			Target t = buffer.pop();
-			//Version de Pablo, comparar con la nuestra
-			QVec r = innerModel->transform("robot", QVec::vec3(t.x, 0, t.z),"world");
+			
+			//Version de Pablo
+			QVec r = innerModel->transform("base", QVec::vec3(t.x, 0, t.z),"world");
+			qDebug() <<"Pablo: " << r;
+			//Nuestra versión
+			Rot2D ro (bState.alpha);
+			QVec y = QVec :: vec2 (t.x, t.z);
+			QVec T = QVec :: vec2 (bState.x, bState.z);
+			QVec x = ro.invert() * (y - T);
+			qDebug() <<"Nuestro: " << x;
 			
 			float distancia = r.norm2();
+			float angulo = atan2(r.z(), r.x());
+			
 			if (distancia < 50) //Si ha llegado al objetivo
 			{
 				differentialrobot_proxy->stopBase();
@@ -76,21 +87,23 @@ void SpecificWorker::compute()
 			}
 			else
 			{
-				float rot = -atan2(r.z(), r.x());
-				float adv = distancia;
+				float rotMax = 2;
+				float advMax = 1000;
 				float f1, f2, k;
 				
-				if (distancia < 1000)
-				{
-					f1 = 1/1000 * distancia;
-				}
-				else
-				{
+				f1 = 0.001 * distancia;
+				if (f1 > 1)
 					f1 = 1;
-				}
 				
+				f2 = exp(-pow((angulo-1.57), 2));
 				
-				//differentialrobot_proxy->setSpeedBase(f1*f2*adv, k*rot);
+				if(angulo > 0.57 && angulo < 2.57)
+					k = pow((angulo - 1.57), 2);
+				else
+					k = 1;
+				
+				differentialrobot_proxy->setSpeedBase(f1*f2*advMax, k*rotMax);
+				
 			}
 		}
 	}
@@ -103,10 +116,10 @@ void SpecificWorker::compute()
 
 void SpecificWorker::setPick(const Pick &myPick)
 {
-	//subscribesToCODE
-	//Hacer push a la estructura
-	
-	std::cout << myPick.x << " " << myPick.z << std::endl;
+	Target target;
+	target.x = myPick.x;
+	target.z = myPick.z;
+	buffer.push(target);
 }
 
 

@@ -81,19 +81,8 @@ private:
         std::atomic_bool activo;
     };
     SafeBuffer buffer;
-    
-  /*  
-    SafeBuffer buffer;
-    
-    buffer.push(Target {myPick.x, myPick.z});
-    
-    //aqui tenemos que pedir posiciones y tal
-    
-    if (buffer.is_empty ==false){ //si hay algo, hacer no se que con el buffer
-        
-    }*/
-    
-	InnerModel *innerModel;
+		
+		InnerModel *innerModel;
 
 };
 
