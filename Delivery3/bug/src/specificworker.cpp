@@ -95,7 +95,7 @@ void SpecificWorker::compute()
 				if (f1 > 1)
 					f1 = 1;
 				
-				f2 = exp(-pow((angulo-1.57), 2));
+				f2 = exp(-(pow((angulo-1.57), 2)/4));
 				
 				if(angulo > 0.57 && angulo < 2.57)
 					k = pow((angulo - 1.57), 2);
