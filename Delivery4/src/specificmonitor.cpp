@@ -97,4 +97,3 @@ bool SpecificMonitor::checkParams(RoboCompCommonBehavior::ParameterList l)
 	bool correct = true;
 	return correct;
 }
-

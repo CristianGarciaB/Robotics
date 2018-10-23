@@ -44,6 +44,12 @@ public slots:
 	void compute();
 
 private:
+    
+    //VARIABLES Y ESO
+    enum State {IDLE=1, GOTO=2, BUG=3};
+    
+    State state = IDLE;
+    
     struct Target{
         float x;
         float z;
@@ -73,7 +79,12 @@ private:
 
         void setInactive()
         {
-						activo.store(false);
+            activo.store(false);
+        }
+        
+        void setActive()
+        {
+            activo.store(true);
         }
 
         Target myTarget;
@@ -82,7 +93,11 @@ private:
     };
     SafeBuffer buffer;
 		
-		InnerModel *innerModel;
+    InnerModel *innerModel;
+        
+    
+    //MODULOS
+    void gotoTarget();
 
 };
 

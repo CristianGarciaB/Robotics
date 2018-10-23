@@ -54,64 +54,115 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	return true;
 }
 
+void SpecificWorker::gotoTarget()
+
+ {
+
+    if( obstacle == true)   // If ther is an obstacle ahead, then transit to BUG
+
+   {
+
+      state = State::BUG;
+
+      return;
+
+   }
+
+    Target t = buffer.pop();
+   
+    QVec rt = innerModel->transform("base", QVec::vec3(t.x, 0, t.z), "world");
+
+    float dist = rt.norm2();
+
+    float ang  = atan2(rt.x(), rt.z());
+
+   if(dist < 100)          // If close to obstacle stop and transit to IDLE
+
+  {
+
+    state = State::IDLE;
+
+    buffer.setActive();
+
+   return;
+
+  }
+
+  float adv = dist;
+
+  if ( fabs( rot) > 0.05 )
+
+   adv = 0;
+
+ }
+// void SpecificWorker::bug()
+// 
+// {
+// 
+// }
+// 
+// bool SpecificWorker::obstacle()
+// 
+// {
+// 
+// }
+// 
+// bool SpecificWorker::targetAtSight()
+// 
+// {
+// 
+// }
+
+
 void SpecificWorker::compute()
 {
 	static RoboCompGenericBase::TBaseState bState;
 	
 	try
 	{
-		differentialrobot_proxy->getBaseState(bState);
-		innerModel->updateTransformValues("base", bState.x, 0, bState.z, 0, bState.alpha, 0);
-		
-		if(buffer.isActive())
-		{
-			Target t = buffer.pop();
-			
-			//Version de Pablo
-			QVec r = innerModel->transform("base", QVec::vec3(t.x, 0, t.z),"world");
-			qDebug() <<"Pablo: " << r;
-			//Nuestra versión
-			Rot2D ro (bState.alpha);
-			QVec y = QVec :: vec2 (t.x, t.z);
-			QVec T = QVec :: vec2 (bState.x, bState.z);
-			QVec x = ro.invert() * (y - T);
-			qDebug() <<"Nuestro: " << x;
-			
-			float distancia = r.norm2();
-			float angulo = atan2(r.z(), r.x());
-			
-			if (distancia < 50) //Si ha llegado al objetivo
-			{
-				differentialrobot_proxy->stopBase();
-				buffer.setInactive();
-			}
-			else
-			{
-				float rotMax = 2;
-				float advMax = 1000;
-				float f1, f2, k;
-				
-				f1 = 0.001 * distancia;
-				if (f1 > 1)
-					f1 = 1;
-				
-				f2 = exp(-(pow((angulo-1.57), 2)/4));
-				
-				if(angulo > 0.57 && angulo < 2.57)
-					k = pow((angulo - 1.57), 2);
-				else
-					k = 1;
-				
-				differentialrobot_proxy->setSpeedBase(f1*f2*advMax, k*rotMax);
-				
-			}
-		}
+        
+        differentialrobot_proxy->getBaseState(bState);
+        
+        RoboCompLaser::TLaserData laserData = laser_proxy->getLaserData();
+        
+        //TODO LO HEMOS CAMBIADO PORQUE SOMOS GUACHIS
+        innerModel->updateTransformValues("base", bState.x, 0, bState.z ,0, bState.alpha, 0);        
+        
+        
+        switch( state )
+            
+        {
+            
+            case State::IDLE:
+                
+                if ( buffer.isActive() )
+                    
+                    state = State::GOTO;
+                
+                break;
+                
+            case State::GOTO:
+                
+                gotoTarget();
+                
+                break;
+                
+            case State::BUG:
+                
+                bug();
+                
+                break;
+                
+        }
+
 	}
 	catch(const Ice::Exception &e)
 	{
 		std::cout << "Error reading from Camera" << e << std::endl;
 	}
 }
+
+
 
 
 void SpecificWorker::setPick(const Pick &myPick)
@@ -121,5 +172,3 @@ void SpecificWorker::setPick(const Pick &myPick)
 	target.z = myPick.z;
 	buffer.push(target);
 }
-
-
