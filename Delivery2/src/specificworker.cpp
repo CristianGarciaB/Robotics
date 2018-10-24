@@ -60,7 +60,7 @@ void SpecificWorker::compute()
 {
 	const float FrontThreshold = 335; //millimeters
 	const float LateralThreshold = 235; //millimeters
-    float rot = 0.9;  //rads per second
+    float rot = 0.9;  //Velocidad de rotacion rads per second
     int velAvanceGiro = 5; //Velocidad de avance durante el giro
 
     try

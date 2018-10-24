@@ -57,8 +57,9 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 void SpecificWorker::gotoTarget()
 
  {
+     //
 
-    if( obstacle == true)   // If ther is an obstacle ahead, then transit to BUG
+    if( obstacle () == true)   // If there is an obstacle ahead, then transit to BUG
 
    {
 
@@ -67,6 +68,9 @@ void SpecificWorker::gotoTarget()
       return;
 
    }
+   
+   //sacar fuera para no pillarlo tantas veces ->en IDLE
+   //hacer lo de la practica 3 : ir al target
 
     Target t = buffer.pop();
    
@@ -76,13 +80,17 @@ void SpecificWorker::gotoTarget()
 
     float ang  = atan2(rt.x(), rt.z());
 
+    
+    //si ha llegado 
    if(dist < 100)          // If close to obstacle stop and transit to IDLE
 
   {
 
     state = State::IDLE;
 
-    buffer.setActive();
+    buffer.setInactive(); //para que IDLE no te vuelva a mandar al mismo sitio
+    
+    //y parar el robot
 
    return;
 
@@ -90,28 +98,63 @@ void SpecificWorker::gotoTarget()
 
   float adv = dist;
 
-  if ( fabs( rot) > 0.05 )
+  //TODO es ang
+  if ( fabs( rot) > 0.05 ) 
 
    adv = 0;
 
  }
-// void SpecificWorker::bug()
-// 
-// {
-// 
-// }
-// 
-// bool SpecificWorker::obstacle()
-// 
-// {
-// 
-// }
-// 
-// bool SpecificWorker::targetAtSight()
-// 
-// {
-// 
-// }
+ 
+
+void SpecificWorker::bug()
+{
+
+}
+
+
+/**
+ * Returns true if there are any obstacle in front of the robot
+ *          false in another case.
+ * 
+ */
+bool SpecificWorker::obstacle()
+{
+
+    try
+    { 
+        RoboCompLaser::TLaserData ldata = laser_proxy->getLaserData();  //read laser data
+        
+        std::vector<TData>::iterator leftLimit = l.data.begin();
+        std::vector<TData>::iterator rightLimit = l.data.begin();
+        
+        int porcion = l.data.size() / 5;
+        
+        std::advance(rightLimit, posicion*2);
+        std::advance(leftLimit, posicion*3);
+     
+        std::
+        
+        
+    }
+    catch(const Ice::Exception &ex)
+    {
+        std::cout << ex << std::endl;
+    }
+}
+
+bool SpecificWorker::targetAtSight(RoboCompLaser::TLaserData laserData, Target target)
+
+{
+    QPolygonF polygon;
+    for (auto l : lasercopy)
+    {
+        QVec lr = innerModel->laserTo("world", "laser", l.dist, l.angle);
+        polygon << QPointF(lr.x(), lr.z());
+    }
+    QVec t = target.getPose();
+    return  polygon.containsPoint( QPointF(t.x(), t.z() ), Qt::WindingFill );
+    
+}
 
 
 void SpecificWorker::compute()
