@@ -58,7 +58,7 @@ void SpecificWorker::gotoTarget()
 
  {
 
-    if( obstacle == true)   // If ther is an obstacle ahead, then transit to BUG
+    if( obstacle() == true)   // If ther is an obstacle ahead, then transit to BUG
 
    {
 
@@ -89,30 +89,33 @@ void SpecificWorker::gotoTarget()
   }
 
   float adv = dist;
-
+/*
   if ( fabs( rot) > 0.05 )
 
    adv = 0;
-
+*/
  }
-// void SpecificWorker::bug()
-// 
-// {
-// 
-// }
-// 
-// bool SpecificWorker::obstacle()
-// 
-// {
-// 
-// }
-// 
-// bool SpecificWorker::targetAtSight()
-// 
-// {
-// 
-// }
+ 
+void SpecificWorker::bug()
+{
+}
 
+bool SpecificWorker::obstacle()
+{
+	return true;
+}
+
+bool SpecificWorker::targetAtSight(RoboCompLaser::TLaserData laserData, Target target)
+{
+	QPolygonF polygon;
+	for (auto l : laserData)
+	{
+		QVec lr = innerModel->laserTo("world", "laser", l.dist, l.angle);
+		polygon << QPointF(lr.x(), lr.z());
+	}
+	QVec t = target.getPose();
+	return  polygon.containsPoint( QPointF(t.x(), t.z() ), Qt::WindingFill );
+}
 
 void SpecificWorker::compute()
 {

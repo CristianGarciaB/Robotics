@@ -53,6 +53,11 @@ private:
     struct Target{
         float x;
         float z;
+				
+				QVec getPose()
+				{
+					return QVec::vec3(x, 0, z);
+				}
     };
     
     struct SafeBuffer {
@@ -96,8 +101,11 @@ private:
     InnerModel *innerModel;
         
     
-    //MODULOS
+     //MODULOS
     void gotoTarget();
+		void bug();
+		bool obstacle();
+		bool targetAtSight(RoboCompLaser::TLaserData laserData, Target target);
 
 };
 
