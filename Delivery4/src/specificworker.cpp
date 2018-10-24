@@ -55,87 +55,132 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 }
 
 void SpecificWorker::gotoTarget()
+{
+	if( obstacle() == true)   // If there is an obstacle ahead, then transit to BUG
+	{
+		state = State::BUG;
+		
+		return;
+	}
+	
+	Target t = buffer.pop();
+	
+	QVec r = innerModel->transform("base", QVec::vec3(t.x, 0, t.z),"world");
+	
+	float distancia = r.norm2();
+	float angulo = atan2(r.z(), r.x());
+	
+	if (distancia < 50) //Si ha llegado al objetivo
+	{
+		state = State::IDLE;
+		differentialrobot_proxy->stopBase();
+		buffer.setInactive();
+	}
+	else
+	{
+		float rotMax = 2;
+		float advMax = 1000;
+		float f1, f2, k;
+		
+		f1 = 0.001 * distancia;
+		if (f1 > 1)
+			f1 = 1;
+		
+		f2 = exp(-(pow((angulo-1.57), 2)/4));
+		
+		if(angulo > 0.57 && angulo < 2.57)
+			k = pow((angulo - 1.57), 2);
+		else
+			k = 1;
+		
+		differentialrobot_proxy->setSpeedBase(f1*f2*advMax, k*rotMax);
+		
+	}
+	
+	/*
+}
+catch(const Ice::Exception &e)
+{
+std::cout << "Error reading from Camera" << e << std::endl;
+}*/
+}
 
- {
-    
-    if( obstacle() == true)   // If ther is an obstacle ahead, then transit to BUG
-
-
-   {
-
-      state = State::BUG;
-
-      return;
-
-   }
-   
-   //sacar fuera para no pillarlo tantas veces ->en IDLE
-   //hacer lo de la practica 3 : ir al target
-
-    Target t = buffer.pop();
-   
-    QVec rt = innerModel->transform("base", QVec::vec3(t.x, 0, t.z), "world");
-
-    float dist = rt.norm2();
-
-    float ang  = atan2(rt.x(), rt.z());
-
-    
-    //si ha llegado 
-   if(dist < 100)          // If close to obstacle stop and transit to IDLE
-
-  {
-
-    state = State::IDLE;
-
-    buffer.setInactive(); //para que IDLE no te vuelva a mandar al mismo sitio
-    
-    //y parar el robot
-
-   return;
-
-  }
-
-  float adv = dist;
-
-
-  //TODO es ang
-  if ( fabs( ang ) > 0.05 ) {
-
- }
- 
+/*
+ * void SpecificWorker::gotoTarget()
+ * {
+ *	
+ *	if( obstacle() == true)   // If ther is an obstacle ahead, then transit to BUG
+ *	{
+ *		state = State::BUG;
+ *		
+ *		return;
+ *	}
+ *	
+ *	//sacar fuera para no pillarlo tantas veces ->en IDLE
+ *	//hacer lo de la practica 3 : ir al target
+ *	
+ *	Target t = buffer.pop();
+ *	
+ *	QVec rt = innerModel->transform("base", QVec::vec3(t.x, 0, t.z), "world");
+ *	
+ *	float dist = rt.norm2();
+ *	
+ *	float ang  = atan2(rt.x(), rt.z());
+ *	
+ *	
+ *	//si ha llegado 
+ *	if(dist < 100)          // If close to obstacle stop and transit to IDLE
+ *		
+ *	{
+ *		
+ *		state = State::IDLE;
+ *		
+ *		buffer.setInactive(); //para que IDLE no te vuelva a mandar al mismo sitio
+ *		
+ *		//y parar el robot
+ *		
+ *		return;
+ *		
+ *	}
+ *	
+ *	float adv = dist;
+ *	
+ *	if ( fabs( ang ) > 0.05 ) 
+ *		adv = 0;
+ * }
+ */
 
 
 /**
  * Returns true if there are any obstacle in front of the robot
  *          false in another case.
  * 
+ *
+ * bool SpecificWorker::obstacle()
+ * {
+ * 
+ *    try
+ *    { 
+ *        RoboCompLaser::TLaserData ldata = laser_proxy->getLaserData();  //read laser data
+ *        
+ *        std::vector<TData>::iterator leftLimit = l.data.begin();
+ *        std::vector<TData>::iterator rightLimit = l.data.begin();
+ *        
+ *        int porcion = l.data.size() / 5;
+ *        
+ *        std::advance(rightLimit, posicion*2);
+ *        std::advance(leftLimit, posicion*3);
+ *     
+ *        std::
+ *        
+ *        
+ *    }
+ *    catch(const Ice::Exception &ex)
+ *    {
+ *        std::cout << ex << std::endl;
+ *    }
+ * }
  */
-bool SpecificWorker::obstacle()
-{
-
-    try
-    { 
-        RoboCompLaser::TLaserData ldata = laser_proxy->getLaserData();  //read laser data
-        
-        std::vector<TData>::iterator leftLimit = l.data.begin();
-        std::vector<TData>::iterator rightLimit = l.data.begin();
-        
-        int porcion = l.data.size() / 5;
-        
-        std::advance(rightLimit, posicion*2);
-        std::advance(leftLimit, posicion*3);
-     
-        std::
-        
-        
-    }
-    catch(const Ice::Exception &ex)
-    {
-        std::cout << ex << std::endl;
-    }
-}
-
 
 void SpecificWorker::bug()
 {
@@ -164,41 +209,34 @@ void SpecificWorker::compute()
 	
 	try
 	{
-        
-        differentialrobot_proxy->getBaseState(bState);
-        
-        RoboCompLaser::TLaserData laserData = laser_proxy->getLaserData();
-        
-        //TODO LO HEMOS CAMBIADO PORQUE SOMOS GUACHIS
-        innerModel->updateTransformValues("base", bState.x, 0, bState.z ,0, bState.alpha, 0);        
-        
-        
-        switch( state )
-            
-        {
-            
-            case State::IDLE:
-                
-                if ( buffer.isActive() )
-                    
-                    state = State::GOTO;
-                
-                break;
-                
-            case State::GOTO:
-                
-                gotoTarget();
-                
-                break;
-                
-            case State::BUG:
-                
-                bug();
-                
-                break;
-                
-        }
-
+		differentialrobot_proxy->getBaseState(bState);
+		
+		RoboCompLaser::TLaserData laserData = laser_proxy->getLaserData();
+		
+		//TODO LO HEMOS CAMBIADO PORQUE SOMOS GUACHIS
+		innerModel->updateTransformValues("base", bState.x, 0, bState.z ,0, bState.alpha, 0);        
+		
+		
+		switch( state )
+		{
+			
+			case State::IDLE:
+				
+				if ( buffer.isActive() )
+					state = State::GOTO;
+				
+				break;
+				
+			case State::GOTO:
+				gotoTarget();
+				break;
+				
+			case State::BUG:
+				bug();
+				break;
+				
+		}
+		
 	}
 	catch(const Ice::Exception &e)
 	{
