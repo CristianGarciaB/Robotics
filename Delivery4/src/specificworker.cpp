@@ -56,84 +56,114 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 void SpecificWorker::gotoTarget()
 
- {
+{
     
     if( obstacle() == true)   // If ther is an obstacle ahead, then transit to BUG
-
-
-   {
-
-      state = State::BUG;
-
-      return;
-
-   }
-   
-   //sacar fuera para no pillarlo tantas veces ->en IDLE
-   //hacer lo de la practica 3 : ir al target
-
-    Target t = buffer.pop();
-   
-    QVec rt = innerModel->transform("base", QVec::vec3(t.x, 0, t.z), "world");
-
-    float dist = rt.norm2();
-
-    float ang  = atan2(rt.x(), rt.z());
-
+    {
+        
+        state = State::BUG;
+        
+        return;
+        
+    }
     
-    //si ha llegado 
-   if(dist < 100)          // If close to obstacle stop and transit to IDLE
-
-  {
-
-    state = State::IDLE;
-
-    buffer.setInactive(); //para que IDLE no te vuelva a mandar al mismo sitio
+    //sacar fuera para no pillarlo tantas veces ->en IDLE
+    //hacer lo de la practica 3 : ir al target
     
-    //y parar el robot
-
-   return;
-
-  }
-
-  float adv = dist;
-
-
-  //TODO es ang
-  if ( fabs( ang ) > 0.05 ) {
-
- }
- 
+//     Target t = buffer.pop();
+//     
+//     QVec rt = innerModel->transform("base", QVec::vec3(t.x, 0, t.z), "world");
+//     
+//     float dist = rt.norm2();
+//     
+//     float ang  = atan2(rt.x(), rt.z());
+//     
+//     
+//     //si ha llegado 
+//     if(dist < 100)          // If close to obstacle stop and transit to IDLE
+//         
+//     {
+//         
+//         state = State::IDLE;
+//         
+//         buffer.setInactive(); //para que IDLE no te vuelva a mandar al mismo sitio
+//         
+//         //y parar el robot
+//         
+//         return;
+//         
+//     }
+//     
+//     float adv = dist;
+//     
+//     
+//     //TODO es ang
+//     if ( fabs( ang ) > 0.05 ) {
+        
+//     }
+    
+    
+}
 
 
 /**
- * Returns true if there are any obstacle in front of the robot
+ * Returns true if there are any obstacle in left, front or right of the robot
  *          false in another case.
  * 
  */
 bool SpecificWorker::obstacle()
 {
-
+    
+    bool obs = false;
+    
     try
     { 
         RoboCompLaser::TLaserData ldata = laser_proxy->getLaserData();  //read laser data
         
-        std::vector<TData>::iterator leftLimit = l.data.begin();
-        std::vector<TData>::iterator rightLimit = l.data.begin();
+        std::vector<TData>::iterator leftLimit = ldata.begin();
+        std::vector<TData>::iterator rightLimit = ldata.begin();
         
-        int porcion = l.data.size() / 5;
+        int porcion = ldata.size() / 5; 
+        //porcion que movemos el iterador para colocarlo en la posición que queremos dentro del rango de valores que recoge el laser
         
-        std::advance(rightLimit, posicion*2);
-        std::advance(leftLimit, posicion*3);
-     
-        std::
+        std::advance(rightLimit, porcion*2);
+        std::advance(leftLimit, porcion*3);
         
+        //Ordena la parte derecha del array
+        std::sort( ldata.begin(), rightLimit, [](RoboCompLaser::TData a, RoboCompLaser::TData b){ return a.dist < b.dist; }) ;
         
-    }
+        //Ordena la parte central del array
+        std::sort( rightLimit, leftLimit, [](RoboCompLaser::TData a, RoboCompLaser::TData b){ return a.dist < b.dist; }) ; 
+        
+        //Ordena la parte izquierda del array
+        std::sort( leftLimit, ldata.end(), [](RoboCompLaser::TData a, RoboCompLaser::TData b){ return a.dist < b.dist; }) ; 
+        
+//         float frontAngle = rightLimit->angle;
+        float frontDistance = rightLimit->dist;
+        float leftDistance = leftLimit->dist;
+//         float leftAngle = leftLimit->angle;
+        float rightDistance = ldata.begin()->dist;
+//         float rightAngle = ldata.begin()->angle;
+                
+        if(leftDistance < lateralThreshold){
+            
+            obs = true;
+            
+        }else   
+            if( rightDistance < lateralThreshold){
+                obs = true;
+            }else
+                if( frontDistance < frontThreshold)
+                {
+                    obs = true;
+                }
+    }            
     catch(const Ice::Exception &ex)
     {
         std::cout << ex << std::endl;
     }
+    
+    return obs;
 }
 
 
@@ -141,10 +171,6 @@ void SpecificWorker::bug()
 {
 }
 
-bool SpecificWorker::obstacle()
-{
-	return true;
-}
 
 bool SpecificWorker::targetAtSight(RoboCompLaser::TLaserData laserData, Target target)
 {

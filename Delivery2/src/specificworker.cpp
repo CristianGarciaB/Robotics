@@ -78,7 +78,7 @@ void SpecificWorker::compute()
         std::sort( ldata.begin(), medio, [](RoboCompLaser::TData a, RoboCompLaser::TData b){ return     a.dist < b.dist; }) ; 
         
         //Ordena la parte central del array
-        std::sort( medio, medio2, [](RoboCompLaser::TData a, RoboCompLaser::TData b){ return     a.dist < b.dist; }) ; 
+       std::sort( medio,   medio2, [](RoboCompLaser::TData a, RoboCompLaser::TData b){ return     a.dist < b.dist; }) ; 
         
         //Ordena la parte izquierda del array
         std::sort( medio2, ldata.end(), [](RoboCompLaser::TData a, RoboCompLaser::TData b){ return     a.dist < b.dist; }) ; 

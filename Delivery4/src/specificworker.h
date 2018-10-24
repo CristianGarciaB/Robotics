@@ -49,22 +49,25 @@ public slots:
     
 private:
     
-<<<<<<< HEAD
+
     //DEFINICION DE ESTRUCTURAS
     enum State {IDLE=1, GOTO=2, BUG=3};
-=======
+
     struct Target{
         float x;
         float z;
-				
-				QVec getPose()
-				{
-					return QVec::vec3(x, 0, z);
-				}
+        
+        QVec getPose()
+        {
+            return QVec::vec3(x, 0, z);
+        }
     };
->>>>>>> 250dbb5bfe01d62473f82c6a6aa79c7fd740183c
     
     struct SafeBuffer {
+        
+        Target myTarget;
+        std::mutex myMutex;
+        std::atomic_bool activo;
         
         SafeBuffer() {
             activo.store(false);
@@ -96,21 +99,8 @@ private:
             activo.store(true);
         }
         
-        Target myTarget;
-        std::mutex myMutex;
-        std::atomic_bool activo;
+
     };
-    
-    struct Target{
-        float x;
-        float z;
-        
-        QVec getPose()
-        {
-            return QVec::vec3(x, 0, z);
-        }
-    };
-    
     
     //VARIABLES
     
@@ -121,8 +111,8 @@ private:
     State state = IDLE; //inicializado a IDLE 
     
     //Para obstacle ()
-    const float FrontThreshold = 335; //millimeters
-	const float LateralThreshold = 235; //millimeters
+    const float frontThreshold = 335; //millimeters
+	const float lateralThreshold = 235; //millimeters
     float rot = 0.9;  //Velocidad de rotacion rads per second
     
     
