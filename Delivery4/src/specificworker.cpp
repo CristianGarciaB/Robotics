@@ -70,16 +70,10 @@ void SpecificWorker::gotoTarget()
     //sacar fuera para no pillarlo tantas veces ->en IDLE
     //hacer lo de la practica 3 : ir al target
     
-//     Target t = buffer.pop();
-//     
-//     QVec rt = innerModel->transform("base", QVec::vec3(t.x, 0, t.z), "world");
-//     
-//     float dist = rt.norm2();
-//     
-//     float ang  = atan2(rt.x(), rt.z());
+
 //     
 //     
-//     //si ha llegado 
+    //si ha llegado 
 //     if(dist < 100)          // If close to obstacle stop and transit to IDLE
 //         
 //     {
@@ -204,6 +198,14 @@ void SpecificWorker::compute()
         {
             
             case State::IDLE:
+                target = buffer.pop();
+                
+                vectorRobTar = innerModel->transform("base", QVec::vec3(t.x, 0, t.z), "world");
+                
+                dist = rt.norm2();
+                
+                ang  = atan2(rt.x(), rt.z());
+                
                 
                 if ( buffer.isActive() )
                     

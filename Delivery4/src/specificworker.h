@@ -65,7 +65,7 @@ private:
     
     struct SafeBuffer {
         
-        Target myTarget;
+        Target targetBuffer;
         std::mutex myMutex;
         std::atomic_bool activo;
         
@@ -75,7 +75,7 @@ private:
         
         void push (const Target &target) {
             std::lock_guard<std::mutex> g(myMutex);
-            myTarget = target;
+            targetBuffer = target;
             activo = true;
         }
         
@@ -86,7 +86,7 @@ private:
         
         Target pop () {
             std::lock_guard<std::mutex> g(myMutex);
-            return myTarget;
+            return targetBuffer;
         }
         
         void setInactive()
@@ -102,7 +102,7 @@ private:
 
     };
     
-    //VARIABLES
+    //----------- VARIABLES ----------------
     
     SafeBuffer buffer;
     
@@ -112,11 +112,21 @@ private:
     
     //Para obstacle ()
     const float frontThreshold = 335; //millimeters
-	const float lateralThreshold = 235; //millimeters
+    const float lateralThreshold = 235; //millimeters
     float rot = 0.9;  //Velocidad de rotacion rads per second
     
+    //General
+    Target target;
     
-     //MODULOS
+    QVec vectorRobTar;
+    
+    float dist = rt.norm2();
+    
+    float ang  = atan2(rt.x(), rt.z());
+    
+    
+    
+    //------------ MODULOS ----------------
     void gotoTarget();
     void bug();
     bool obstacle();
