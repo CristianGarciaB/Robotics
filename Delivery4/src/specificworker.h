@@ -49,8 +49,20 @@ public slots:
     
 private:
     
+<<<<<<< HEAD
     //DEFINICION DE ESTRUCTURAS
     enum State {IDLE=1, GOTO=2, BUG=3};
+=======
+    struct Target{
+        float x;
+        float z;
+				
+				QVec getPose()
+				{
+					return QVec::vec3(x, 0, z);
+				}
+    };
+>>>>>>> 250dbb5bfe01d62473f82c6a6aa79c7fd740183c
     
     struct SafeBuffer {
         
@@ -114,12 +126,13 @@ private:
     float rot = 0.9;  //Velocidad de rotacion rads per second
     
     
-    //MODULOS
+     //MODULOS
     void gotoTarget();
     void bug();
     bool obstacle();
     bool targetAtSight(RoboCompLaser::TLaserData laserData, Target target);
     
+
 };
 
 #endif
