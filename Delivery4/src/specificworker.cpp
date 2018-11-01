@@ -62,8 +62,8 @@ void SpecificWorker::gotoTarget()
 		return;
 	}
 	
-	float distancia = vectorTarget.norm2();
-	float angulo = atan2 ( vectorTarget.z(), vectorTarget.x() );
+	float distancia = vectorRobTar.norm2();
+	float angulo = atan2 ( vectorRobTar.z(), vectorRobTar.x() );
 	
 	if ( distancia < 50 ) { //Si ha llegado al objetivo
 		state = State::IDLE;
@@ -92,7 +92,7 @@ void SpecificWorker::gotoTarget()
 void SpecificWorker::align()
 {
 	
-	float angulo = atan2(vectorTarget.z(), vectorTarget.x());
+	float angulo = atan2(vectorRobTar.z(), vectorRobTar.x());
 	
 	float k;
 	
@@ -192,7 +192,7 @@ void SpecificWorker::compute()
 		
 		innerModel->updateTransformValues ( "base", bState.x, 0, bState.z ,0, bState.alpha, 0 );
 		
-		vectorTarget = innerModel->transform ( "base", QVec::vec3 ( target.x, 0, target.z ),"world" );
+		vectorRobTar = innerModel->transform ( "base", QVec::vec3 ( target.x, 0, target.z ),"world" );
 		
 		switch ( state ) {
 			
