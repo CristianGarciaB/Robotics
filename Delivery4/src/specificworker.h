@@ -32,86 +32,97 @@
 
 class SpecificWorker : public GenericWorker
 {
-	Q_OBJECT
-	
-public:
-	
-	SpecificWorker(MapPrx& mprx);
-	~SpecificWorker();
-	
-	
-	bool setParams(RoboCompCommonBehavior::ParameterList params);
-	void setPick(const Pick &myPick);
-	
-public slots:
-	
-	void compute();
-	
-private:
-	
-	//DEFINICION DE ESTRUCTURAS
-	enum State {IDLE=1, GOTO=2, BUG=3};
-	
-	struct Target{
-		float x;
-		float z;
-		
-		QVec getPose()
-		{
-			return QVec::vec3(x, 0, z);
-		}
-	};
-	
-	struct SafeBuffer {
-		
-		SafeBuffer() {
-			activo.store(false);
-		}
-		
-		void push (const Target &target) {
-			std::lock_guard<std::mutex> g(myMutex);
-			myTarget = target;
-			activo = true;
-		}
-		
-		inline bool isActive()const
-		{
-			return activo.load();
-		}
-		
-		Target pop () {
-			std::lock_guard<std::mutex> g(myMutex);
-			return myTarget;
-		}
-		
-		void setInactive()
-		{
-			activo.store(false);
-		}
-		
-		void setActive()
-		{
-			activo.store(true);
-		}
-		
-		Target myTarget;
-		std::mutex myMutex;
-		std::atomic_bool activo;
-	};
+    Q_OBJECT
 
-	//VARIABLES
-	
-	SafeBuffer buffer;
-	InnerModel *innerModel;
-	State state = IDLE; //inicializado a IDLE 
-	
-	//MODULOS
-	void gotoTarget();
-	void bug();
-	bool obstacle();
-	bool targetAtSight(RoboCompLaser::TLaserData laserData, Target target);
-	
-	
+public:
+
+    SpecificWorker(MapPrx& mprx);
+    ~SpecificWorker();
+
+
+    bool setParams(RoboCompCommonBehavior::ParameterList params);
+    void setPick(const Pick &myPick);
+
+public slots:
+
+    void compute();
+
+private:
+
+    //-------------ESTRUCTURAS-------------
+    enum State {IDLE=1, GOTO=2, BUG=3};
+
+    struct Target {
+        float x;
+        float z;
+
+        QVec getPose()
+        {
+            return QVec::vec3(x, 0, z);
+        }
+    };
+
+    struct SafeBuffer {
+
+        Target myTarget;
+        std::mutex myMutex;
+        std::atomic_bool activo;
+
+        SafeBuffer() {
+            activo.store(false);
+        }
+
+        void push (const Target &target) {
+            std::lock_guard<std::mutex> g(myMutex);
+            myTarget = target;
+            activo = true;
+        }
+
+        inline bool isActive()const
+        {
+            return activo.load();
+        }
+
+        Target pop () {
+            std::lock_guard<std::mutex> g(myMutex);
+            return myTarget;
+        }
+
+        void setInactive()
+        {
+            activo.store(false);
+        }
+
+        void setActive()
+        {
+            activo.store(true);
+        }
+
+
+    };
+
+    //--------------VARIABLES--------------
+    SafeBuffer buffer;
+    InnerModel *innerModel;
+    State state = IDLE;
+    Target target;
+		
+		QVec vectorTarget;
+
+    //-------------CONSTANTES--------------
+    const float frontThreshold = 335; //millimeters
+    const float lateralThreshold = 235; //millimeters
+		const float rotMax = 2;
+		const float advMax = 1000;
+
+    //-------------MODULOS-----------------
+    void gotoTarget();
+		void align();
+    void bug();
+    bool obstacle();
+    bool targetAtSight();
+
+
 };
 
 #endif
