@@ -57,9 +57,10 @@ bool SpecificWorker::setParams ( RoboCompCommonBehavior::ParameterList params )
 void SpecificWorker::gotoTarget()
 {
 	if ( obstacle() == true ) { // If there is an obstacle ahead, then transit to BUG
-		state = State::BUG;
 		
+        state = State::BUG;
 		return;
+        
 	}
 	
 	float distancia = vectorRobTar.norm2();
@@ -69,6 +70,8 @@ void SpecificWorker::gotoTarget()
 		state = State::IDLE;
 		differentialrobot_proxy->stopBase();
 		buffer.setInactive();
+        return;
+        
 	} else {
 		float f1, f2, k;
 		
