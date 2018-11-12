@@ -1,0 +1,14 @@
+/home/mariesalguerog/robocomp/components/mycomponents/Robotics/Delivery4/CMakeFiles/install/strip.dir
+/home/mariesalguerog/robocomp/components/mycomponents/Robotics/Delivery4/CMakeFiles/install.dir
+/home/mariesalguerog/robocomp/components/mycomponents/Robotics/Delivery4/CMakeFiles/install/local.dir
+/home/mariesalguerog/robocomp/components/mycomponents/Robotics/Delivery4/CMakeFiles/list_install_components.dir
+/home/mariesalguerog/robocomp/components/mycomponents/Robotics/Delivery4/CMakeFiles/edit_cache.dir
+/home/mariesalguerog/robocomp/components/mycomponents/Robotics/Delivery4/CMakeFiles/rebuild_cache.dir
+/home/mariesalguerog/robocomp/components/mycomponents/Robotics/Delivery4/src/CMakeFiles/install/strip.dir
+/home/mariesalguerog/robocomp/components/mycomponents/Robotics/Delivery4/src/CMakeFiles/edit_cache.dir
+/home/mariesalguerog/robocomp/components/mycomponents/Robotics/Delivery4/src/CMakeFiles/bug2.dir
+/home/mariesalguerog/robocomp/components/mycomponents/Robotics/Delivery4/src/CMakeFiles/rebuild_cache.dir
+/home/mariesalguerog/robocomp/components/mycomponents/Robotics/Delivery4/src/CMakeFiles/list_install_components.dir
+/home/mariesalguerog/robocomp/components/mycomponents/Robotics/Delivery4/src/CMakeFiles/install/local.dir
+/home/mariesalguerog/robocomp/components/mycomponents/Robotics/Delivery4/src/CMakeFiles/install.dir
+/home/mariesalguerog/robocomp/components/mycomponents/Robotics/Delivery4/src/CMakeFiles/bug2_autogen.dir

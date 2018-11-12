@@ -50,9 +50,14 @@ public slots:
 private:
 
     //-------------ESTRUCTURAS-------------
-    enum State {IDLE=1, GOTO=2, BUG=3};
+    enum State {IDLE=1, GOTO=2, BUG=3, ALIGN=4, PARALLEL=5};
+    
+    /**
+     * For obstacle method: Laser section to check if there are any obstacle
+     */
+    enum Section {LEFT = 1, RIGHT = 2, TOTAL = 3, FRONT = 4, middleLEFT = 5, middleRIGHT = 6};
 
-    struct Target {
+    struct Pose {
         float x;
         float z;
 
@@ -64,38 +69,38 @@ private:
 
     struct SafeBuffer {
 			
-        Target targetBuffer;
+        Pose targetBuffer;
         std::mutex myMutex;
-        std::atomic_bool activo;
+        std::atomic_bool active;
 
         SafeBuffer() {
-            activo.store(false);
+            active.store(false);
         }
 
-        void push (const Target &target) {
+        void push (const Pose &target) {
             std::lock_guard<std::mutex> g(myMutex);
             targetBuffer = target;
-            activo = true;
+            active = true;
         }
 
         inline bool isActive()const
         {
-            return activo.load();
+            return active.load();
         }
 
-        Target pop () {
+        Pose pop () {
             std::lock_guard<std::mutex> g(myMutex);
             return targetBuffer;
         }
 
         void setInactive()
         {
-            activo.store(false);
+            active.store(false);
         }
 
         void setActive()
         {
-            activo.store(true);
+            active.store(true);
         }
 
 
@@ -105,24 +110,55 @@ private:
     SafeBuffer buffer;
     InnerModel *innerModel;
     State state = IDLE;
-    Target target;
-		
-		QVec vectorRobTar;
+//     State stateBefore = IDLE;
+    
+    Pose target;
+    Pose robot;
+    
+    QVec vectorRobTar;
+    float distance;
+    float angle, angleMin, angleMax;
+    
+    RoboCompLaser::TLaserData ldata; //Laser divided in sections and ordered by distance
+    RoboCompLaser::TLaserData ldataRaw; //Laser without modifications
+    
+    //When the data laser vector is ordered, these points to:
+    std::vector<TData>::iterator minLeft; //Minimum distance at left
+    std::vector<TData>::iterator minFront; //Minimum distance in front
+    std::vector<TData>::iterator minRight; //Minimum distance at right
+    std::vector<TData>::iterator middleLeft; //Minimum distance in the middleLeft
+    std::vector<TData>::iterator middleRight; //Minimum distance in the middleRight 
+    
+    
+    /**
+     * -1 if the obstacle is on the left
+     *  0 if the obstacle is in front
+     *  1 if the obstacle is on the right     
+     */
+    int partObstacle=9999;
+    
 
     //-------------CONSTANTES--------------
-    const float frontThreshold = 335; //millimeters
-    const float lateralThreshold = 235; //millimeters
-		const float rotMax = 2; //Velocidad de rotacion máxima en rads/s
-		const float advMax = 1000;
+    const float frontThreshold = 400; //millimeters
+    const float lateralThreshold = 350; //millimeters
+    const float rotMax = 2; //Velocidad de rotacion máxima en rads/s
+    const float advMax = 1000;
     
-		//--------------METHODS-----------------
+    //--------------METODOS-----------------
+    
+    
+    void align();
     void gotoTarget();
-		void align();
     void bug();
-    bool obstacle();
+    void parallel();
+    
+    //---------METODOS AUXILIARES-----------
+    bool obstacle(Section section, int &partObstacle);
+    bool viaLibre();
     bool targetAtSight();
+    void ordenarLaser(RoboCompLaser::TLaserData ldata);
 
-
+//     int n;
 };
 
 #endif
