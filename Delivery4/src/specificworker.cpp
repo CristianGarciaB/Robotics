@@ -271,17 +271,10 @@ void SpecificWorker::align()
 		return;
 	}
 	
-	float k;
-	
-	if(angle > 0.57 && angle < 2.57){
-        k = pow((angle - 1.57), 2);
-
-        if (abs(angle) > 1.57)
-        k = k * -1;
-        
-    }
-	else
-		k = 1;
+	float k =1;
+    
+    if (abs(angle) > 1.57)
+        k = -1;
 	
 	differentialrobot_proxy->setSpeedBase(0, k*rotMax);
 }
@@ -300,7 +293,7 @@ void SpecificWorker::gotoTarget()
 	}
 
 	//si hay obstaculo pero la distancia es menor que 100 el target esta cerca de pared
-	if( obstacle(Section::TOTAL, partObstacle) && distance<200){
+	if( obstacle(Section::FRONT, partObstacle) && distance<200){
         std::cout <<"ON TARGET. STOP AND WAIT NEW TARGET" << std::endl;
 		state = State::IDLE;
 		differentialrobot_proxy->stopBase();
