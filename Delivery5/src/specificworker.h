@@ -29,6 +29,7 @@
 
 #include <genericworker.h>
 #include <innermodel/innermodel.h>
+#include <grid.h>
 
 class SpecificWorker : public GenericWorker
 {
@@ -44,8 +45,17 @@ public slots:
 	void compute();
 
 private:
-	InnerModel *innerModel;
-
+		std::shared_ptr<InnerModel> innerModel;
+		QGraphicsScene scene;
+		QGraphicsView view;
+		QGraphicsRectItem *robot;
+		QGraphicsEllipseItem *noserobot;
+		QVec target;
+	
+	using TCell = std::tuple<uint, bool, QGraphicsRectItem*, bool>;
+		constexpr static int cid = 0, cvisited = 1, crect = 2, cfree = 3;
+		using TDim = Grid<TCell>::Dimensions;
+		Grid<TCell> grid;
 };
 
 #endif

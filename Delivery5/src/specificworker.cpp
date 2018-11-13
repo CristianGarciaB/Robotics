@@ -37,17 +37,33 @@ SpecificWorker::~SpecificWorker()
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
 //       THE FOLLOWING IS JUST AN EXAMPLE
-//
-//	try
-//	{
-//		RoboCompCommonBehavior::Parameter par = params.at("InnerModelPath");
-//		innermodel_path = par.value;
-//		innermodel = new InnerModel(innermodel_path);
-//	}
-//	catch(std::exception e) { qFatal("Error reading config params"); }
+/*
+	try
+	{
+		RoboCompCommonBehavior::Parameter par = params.at("InnerModelPath");
+		innermodel_path = par.value;
+		innermodel = new InnerModel(innermodel_path);
+	}
+	catch(std::exception e) { qFatal("Error reading config params"); }*/
 
+		// Scene
+	scene.setSceneRect(-2500, -2500, 5000, 5000);
+	view.setScene(&scene);
+	view.scale(1, -1);
+	//view.setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
+	view.fitInView(scene.sceneRect(), Qt::KeepAspectRatio );
+	robot = scene.addRect(QRectF(-200, -200, 400, 400), QPen(), QBrush(Qt::blue));
+	noserobot = new QGraphicsEllipseItem(-50,100, 100,100, robot);
+	noserobot->setBrush(Qt::magenta);
 
-
+	const int tilesize = 200;
+	grid.initialize( TDim{}, TCell{-1, true, nullptr, true} );
+	for(auto &[key, value] : grid)
+	{
+		auto tile = scene.addRect(-tilesize/2,-tilesize/2, 100,100, QPen(Qt::NoPen));
+		tile->setPos(key.x,key.z);
+		std::get<crect>(value) = tile;
+	}
 
 	timer.start(Period);
 
