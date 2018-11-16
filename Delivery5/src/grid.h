@@ -22,10 +22,15 @@
 #include <iostream> 
 
 
-template<class T> auto operator<<(std::ostream& os, const T& t) -> decltype(t.print(os), os) 
+template<class T> auto operator<<(std::ostream& os, const T& t) -> decltype(t.save(os), os) 
 { 
-    t.print(os); 
+    t.save(os); 
     return os; 
+};
+template<class T> auto operator>>(std::istream& is, T& t) -> decltype(t.read(is), is) 
+{ 
+    t.read(is); 
+    return is; 
 };
 
 template <typename T>
@@ -37,6 +42,15 @@ class Grid
 		{
 			int TILE_SIZE = 200;
 			int HMIN=-2500, HMAX=2500, VMIN=-2500, VMAX=2500;
+			Dimensions(int tilesize, int hmin, int hmax, int vmin, int vmax)
+			{
+				TILE_SIZE = tilesize;
+				HMIN = hmin;
+				HMAX = hmax;
+				VMIN = vmin;
+				VMAX = vmax;
+			};
+			Dimensions(){};
 		};
 		
 		struct Key
@@ -51,7 +65,8 @@ class Grid
 				Key(const long int &x, const long int &z): x(x), z(z){};
 				bool operator==(const Key &other) const
 					{ return x == other.x && z == other.z; };
-				void print(std::ostream &os) const 	{ os << " x:" << x << " z:" << z; };
+				void save(std::ostream &os) const { os << x << " " << z << " "; };	//method to save the keys
+				void read(std::istream &is)  { is >> x >> z; };	//method to read the keys
 		};
 
 		struct KeyHasher
@@ -71,36 +86,55 @@ class Grid
 				};
 			};	
 			
-		using FMap =	std::unordered_map<Key, T, KeyHasher>;
+		using FMap = std::unordered_map<Key, T, KeyHasher>;
 		
 		Grid()																				{};
+		
 		std::tuple<bool,T&> getCell(long int x, long int z) 											
 		{
- 			if(x<=dim.HMIN or x>=dim.HMAX or z <= dim.VMIN or z >= dim.VMAX)
+ 			if(x <= dim.HMIN or x >= dim.HMAX or z <= dim.VMIN or z >= dim.VMAX)
  			{ return std::forward_as_tuple(false, T());}
 			else
 				return std::forward_as_tuple(true, fmap.at(pointToGrid(x,z)));
 		}
+		
 		typename FMap::iterator begin() 							{ return fmap.begin(); };
 		typename FMap::iterator end() 								{ return fmap.end();   };
 		typename FMap::const_iterator begin() const   { return fmap.begin(); };
 		typename FMap::const_iterator end() const 	 	{ return fmap.begin(); };
 		size_t size() const 													{ return fmap.size();  };
+		
 		void initialize(const Dimensions &dim_, const T &initValue)
 		{
 			dim = dim_;
 			uint k=0;
 			for( int i = dim.HMIN ; i < dim.HMAX ; i += dim.TILE_SIZE)
 				for( int j = dim.VMIN ; j < dim.VMAX ; j += dim.TILE_SIZE)
-					fmap.emplace( Key(i,j),initValue); 
+					fmap.emplace( Key(i,j), initValue); 
 	
 			// list of increments to access the neighboors of a given position
 			I = dim.TILE_SIZE;
-		  xincs = {I,I, I, 0,-I,-I,-I,0};
-		  zincs = {I,0,-I,-I,-I, 0,I, I};	
+			xincs = {I,I,I,0,-I,-I,-I,0};
+			zincs = {I,0,-I,-I,-I,0,I,I};	
 		
 			std::cout << "Grid::Initialize. Grid initialized to map size: " << fmap.size() << std::endl;	
 		}
+		
+		void readFromFile(const std::string &fich)
+		{
+			std::ifstream myfile;
+			myfile.open(fich);
+			Key k; T v;
+			myfile >> k >> v;
+			while (!myfile.eof() ) 
+			{
+				fmap.emplace( k, v); 
+				std::cout << k << v << std::endl;
+				myfile >> k >> v;
+			}
+			myfile.close();	
+		}
+		
  		std::vector<std::pair<Key,T>> neighbours(const Key &k) const
 		{
 			using Cell = std::pair<Key,T>;
