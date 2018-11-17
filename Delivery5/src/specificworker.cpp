@@ -17,18 +17,18 @@
  *    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "specificworker.h"
-
+#include "math.h"
 /**
-* \brief Default constructor
-*/
+ * \brief Default constructor
+ */
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
 	std::cout << std::boolalpha;   
 }
 
 /**
-* \brief Default destructor
-*/
+ * \brief Default destructor
+ */
 SpecificWorker::~SpecificWorker()
 {}
 
@@ -40,7 +40,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		innerModel = std::make_shared<InnerModel>(par.value);
 	}
 	catch(std::exception e) { qFatal("Error reading config params"); }
-
+	
 	qDebug() << __FILE__ ;
 	
 	// Scene
@@ -50,12 +50,10 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	view.setParent(scrollArea);
 	//view.setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
 	view.fitInView(scene.sceneRect(), Qt::KeepAspectRatio );
-
-	const int tilesize = 70;
 	
 	//choose here or create a button in the UI to load from file
-	grid.initialize( TDim{ tilesize, -2500, 2500, -2500, 2500}, TCell{true, false, nullptr} );
-	//grid.readFromFile("map.txt");
+	//grid.initialize( TDim{ tilesize, -2500, 2500, -2500, 2500}, TCell{true, false, nullptr} );
+	grid.readFromFile("map.txt");
 	
 	for(auto &[key, value] : grid)
 	{
@@ -63,11 +61,11 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		tile->setPos(key.x,key.z);
 		value.rect = tile;
 	}
-
+	
 	robot = scene.addRect(QRectF(-200, -200, 400, 400), QPen(), QBrush(Qt::blue));
 	noserobot = new QGraphicsEllipseItem(-50,100, 100,100, robot);
 	noserobot->setBrush(Qt::magenta);
-
+	
 	//target = QVec::vec3(0,0,0);
 	
 	//qDebug() << __FILE__ << __FUNCTION__ << "CPP " << __cplusplus;
@@ -81,9 +79,9 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 void SpecificWorker::compute()
 {
 	static RoboCompGenericBase::TBaseState bState;
- 	try
- 	{
- 		differentialrobot_proxy->getBaseState(bState);
+	try
+	{
+		differentialrobot_proxy->getBaseState(bState);
 		innerModel->updateTransformValues("base", bState.x, 0, bState.z, 0, bState.alpha, 0);
 		RoboCompLaser::TLaserData ldata = laser_proxy->getLaserData();
 		
@@ -91,30 +89,166 @@ void SpecificWorker::compute()
 		robot->setPos(bState.x, bState.z);
 		robot->setRotation(-180.*bState.alpha/M_PI);
 		
-		updateOccupiedCells(bState, ldata);
+		//updateOccupiedCells(bState, ldata);
 		
 		if(buffer.isActive())
 		{
 			target = buffer.pop();
 			buffer.setInactive();
 			
+			abiertos.clear();
+			cerrados.clear();
+			path.clear();
+			
+			nodo inicial2 (NULL, Key(bState.x, bState.z), TCell{true, false, nullptr}, 0, 0);
+			inicial=inicial2;
+			abiertos.push_back(inicial);
+			
+			aEstrella();
 		}
-	
+		
 	}
- 	catch(const Ice::Exception &e)
+	catch(const Ice::Exception &e)
 	{	std::cout  << e << std::endl; }
 	
 	//Resize world widget if necessary, and render the world
 	if (view.size() != scrollArea->size())
-			view.setFixedSize(scrollArea->width(), scrollArea->height());
+		view.setFixedSize(scrollArea->width(), scrollArea->height());
 	draw();
 	
+}
+
+bool SpecificWorker::enListaCerrados(nodo a)
+{
+	bool inList = false;
+	
+	for (auto l : cerrados)
+	{
+		if (l == a)
+		{
+			inList = true;
+			break;
+		}
+	}
+	return inList;
+}
+
+bool SpecificWorker::enPath(Key k)
+{
+	bool inList = false;
+	
+	for (auto l : path)
+	{
+		if (l.k == k)
+		{
+			inList = true;
+			break;
+		}
+	}
+	return inList;
+}
+
+bool SpecificWorker::enListaAbiertos(nodo a, nodo *enLista)
+{
+	bool inList = false;
+	
+	for (auto l : abiertos)
+	{
+		if (l == a)
+		{
+			inList = true;
+			*enLista = l;
+			break;
+		}
+	}
+	
+	return inList;
+}
+
+float SpecificWorker::calcularFuncion(float cost, Key k)
+{
+	float valor, coste, heuristica;
+	
+	coste = cost + 1;
+	heuristica = sqrt(pow((target.x - k.x),2) + pow((target.z - k.z),2));
+	valor = coste + heuristica;
+	
+	return valor;
+	
+}
+
+void SpecificWorker::getPath()
+{
+	nodo anterior = cerrados.back();
+	path.push_back(anterior);
+	
+	while(!(anterior == inicial))
+	{
+		anterior = *anterior.padre;
+		path.insert(path.begin(), anterior);
+	}
+}
+
+bool SpecificWorker::aEstrella()
+{
+ 	bool pathFound = false;
+	nodo menor;
+	nodo targetNode (Key(target.x, target.z));
+
+	abiertos.clear();
+	nodo a (NULL, Key(-50, 20), TCell{true, false, nullptr}, 0, 0);
+	abiertos.push_back(a);
+	
+	while(!pathFound and !abiertos.empty())
+	{
+		std::sort(abiertos.begin(), abiertos.end(), [](nodo a, nodo b) {
+        return a < b;   
+    });
+		
+		menor = abiertos.front();
+		cerrados.push_back(menor);
+		abiertos.erase(abiertos.begin());
+			
+		if (menor == targetNode)
+			pathFound = true;
+		else
+		{
+			const std::vector<std::pair<Key,TCell>> vecinos = grid.neighbours(menor.k);
+			for (auto &[k, v] : vecinos)
+			{
+				nodo nuevo (&menor, k, v, calcularFuncion(menor.c, k), menor.c+1);
+				if(!enListaCerrados(nuevo) && v.free)
+				{
+					nodo enLista;
+					if(!enListaAbiertos(nuevo, &enLista)){
+						abiertos.push_back(nuevo);
+					}else{
+						if(nuevo.c < enLista.c)
+						{
+							enLista.padre = &menor;
+							enLista.c = nuevo.c;
+							enLista.f = nuevo.f;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	if(pathFound)
+		getPath();
+	else
+		std::cout<<"no found"<<std::endl;
+	
+	std::cout<<"done"<<std::endl;
+	return pathFound;
 }
 
 void SpecificWorker::saveToFile()
 {
 	std::ofstream myfile;
-  myfile.open ("map.txt");
+	myfile.open ("map.txt");
+	myfile << tilesize << std::endl;
 	for(auto &[k, v] : grid)
 	{
 		myfile << k << v << std::endl;
@@ -143,6 +277,9 @@ void SpecificWorker::draw()
 			value.rect->setBrush(Qt::lightGray);
 		if(value.free == false)
 			value.rect->setBrush(Qt::darkRed);
+		if(enPath(key))
+			value.rect->setBrush(Qt::green);
+			
 	}
 	view.show();
 }
@@ -156,5 +293,8 @@ void SpecificWorker::setPick(const Pick &myPick)
 	Pose target;
 	target.x = myPick.x;
 	target.z = myPick.z;
+	std::cout<<"CLICK EN "<<target.x <<" "<<target.z<<std::endl;
+	Key k (target.x, target.z);
+	std::cout<<"TARGET"<<k.x <<" "<<k.z<<std::endl;
 	buffer.push ( target );
 }

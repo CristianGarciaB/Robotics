@@ -107,15 +107,7 @@ class SpecificWorker : public GenericWorker
 		QGraphicsRectItem *robot;
 		QGraphicsEllipseItem *noserobot;
 		QVec targetVector;
-		
-		/*
-		using nodo = std::tuple<Key, float>;
-		
-		std::vector<nodo> abiertos;
-		std::vector<nodo> cerrados;
-		*/
-		void updateOccupiedCells(const RoboCompGenericBase::TBaseState &bState, const RoboCompLaser::TLaserData &ldata);
-		void checkTransform(const RoboCompGenericBase::TBaseState &bState);
+		const int tilesize = 70;
 		
 		/// Grid
 		struct TCell
@@ -130,9 +122,84 @@ class SpecificWorker : public GenericWorker
 		};
 		
 		using TDim = Grid<TCell>::Dimensions;
+		using Key = Grid<TCell>::Key;
 		Grid<TCell> grid;
 		
-
+		struct nodo
+		{
+			nodo *padre;
+			Key k;
+			TCell cell;
+			float f;
+			float c;
+			
+			nodo(){};
+			
+			nodo(int unused)
+			{
+				this->padre = NULL;
+				this->k = Key();
+				this->cell = TCell{true, false, nullptr};
+				this->f = 0;
+				this->c = 0;
+			}
+			
+			nodo(nodo *padre, Key k, TCell cell, float f, float c)
+			{
+				this->padre = padre;
+				this->k = k;
+				this->cell = cell;
+				this->f = f;
+				this->c = c;
+			}
+			
+			nodo(Key k)
+			{
+				this->k = k;
+			}
+			
+			bool operator<(nodo b)
+			{
+				if (f < b.f)
+					return true;
+				else
+					return false;
+			}
+			
+			bool operator>(nodo b)
+			{
+				if (f > b.f)
+					return true;
+				else
+					return false;
+			}
+			
+			bool operator==(nodo b)
+			{
+				if (this->k == b.k)
+					return true;
+				else
+					return false;
+			}
+			
+		};
+		nodo inicial;
+		
+		std::vector<nodo> abiertos;
+		std::vector<nodo> cerrados;
+		std::vector<nodo> path;
+		
+		//MÉTODOS
+		
+		bool enListaCerrados(nodo a);
+		bool enPath(Key k);
+		bool enListaAbiertos(nodo a, nodo *enLista);
+		float calcularFuncion(float cost, Key k);
+		void getPath();
+		bool aEstrella();
+		void updateOccupiedCells(const RoboCompGenericBase::TBaseState &bState, const RoboCompLaser::TLaserData &ldata);
+		void checkTransform(const RoboCompGenericBase::TBaseState &bState);
 };
+
 
 #endif

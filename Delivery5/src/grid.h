@@ -125,7 +125,14 @@ class Grid
 			std::ifstream myfile;
 			myfile.open(fich);
 			Key k; T v;
-			myfile >> k >> v;
+			int tile_size;
+			
+			myfile >>tile_size;
+			I = tile_size;
+			xincs = {I,I,I,0,-I,-I,-I,0};
+			zincs = {I,0,-I,-I,-I,0,I,I};	
+			
+			myfile >> k >> v; 
 			while (!myfile.eof() ) 
 			{
 				fmap.emplace( k, v); 
@@ -144,8 +151,9 @@ class Grid
 			{
 				Key lk{k.x + *itx, k.z + *itz}; 
 				typename FMap::const_iterator it = fmap.find(lk);
-				if( it != fmap.end() )
+				if( it != fmap.end() ){
 					neigh.push_back({lk,it->second});
+				}
 			};
 			return neigh;
 		}	
