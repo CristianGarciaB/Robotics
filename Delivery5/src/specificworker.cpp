@@ -91,6 +91,7 @@ void SpecificWorker::compute()
 		
 		//updateOccupiedCells(bState, ldata);
 		
+		//---------------------ESTADO IDLE------------------------
 		if(buffer.isActive())
 		{
 			target = buffer.pop();
@@ -107,6 +108,7 @@ void SpecificWorker::compute()
 			aEstrella();
 			state = State::GOTO;
 		}
+		//---------------------------------------------------------
 		
 	}
 	catch(const Ice::Exception &e)
