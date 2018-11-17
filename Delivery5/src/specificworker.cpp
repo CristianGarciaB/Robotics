@@ -237,10 +237,7 @@ bool SpecificWorker::aEstrella()
 	
 	if(pathFound)
 		getPath();
-	else
-		std::cout<<"no found"<<std::endl;
 	
-	std::cout<<"done"<<std::endl;
 	return pathFound;
 }
 
@@ -293,8 +290,5 @@ void SpecificWorker::setPick(const Pick &myPick)
 	Pose target;
 	target.x = myPick.x;
 	target.z = myPick.z;
-	std::cout<<"CLICK EN "<<target.x <<" "<<target.z<<std::endl;
-	Key k (target.x, target.z);
-	std::cout<<"TARGET"<<k.x <<" "<<k.z<<std::endl;
 	buffer.push ( target );
 }
