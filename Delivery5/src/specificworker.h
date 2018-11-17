@@ -49,6 +49,14 @@ class SpecificWorker : public GenericWorker
 		void saveToFile();
 
 	private:
+		//-------------------VARIABLES-----------------------
+		std::shared_ptr<InnerModel> innerModel;
+		QGraphicsScene scene;
+		QGraphicsView view;
+		QGraphicsRectItem *robot;
+		QGraphicsEllipseItem *noserobot;
+		const int tilesize = 70;
+		
 		struct Pose {
         float x;
         float z;
@@ -100,16 +108,7 @@ class SpecificWorker : public GenericWorker
 		
 		SafeBuffer buffer;
 		Pose target;
-		std::shared_ptr<InnerModel> innerModel;
-		QGraphicsScene scene;
-		QGraphicsView view;
-		void draw();
-		QGraphicsRectItem *robot;
-		QGraphicsEllipseItem *noserobot;
-		QVec targetVector;
-		const int tilesize = 70;
 		
-		/// Grid
 		struct TCell
 		{
 			bool free;
@@ -183,21 +182,27 @@ class SpecificWorker : public GenericWorker
 			}
 			
 		};
+		
 		nodo inicial;
 		
 		std::vector<nodo> abiertos;
 		std::vector<nodo> cerrados;
 		std::vector<nodo> path;
 		
-		//MÉTODOS
+    enum State {IDLE=1, GOTO=2};
+		State state = State::IDLE;
 		
+		//----------------MÉTODOS PRINCIPALES---------------------------
+		bool aEstrella();
+		void updateOccupiedCells(const RoboCompGenericBase::TBaseState &bState, const RoboCompLaser::TLaserData &ldata);
+		void draw();
+		
+		//----------------MÉTODOS AUXILIARES---------------------------
 		bool enListaCerrados(nodo a);
 		bool enPath(Key k);
 		bool enListaAbiertos(nodo a, nodo *enLista);
 		float calcularFuncion(float cost, Key k);
 		void getPath();
-		bool aEstrella();
-		void updateOccupiedCells(const RoboCompGenericBase::TBaseState &bState, const RoboCompLaser::TLaserData &ldata);
 		void checkTransform(const RoboCompGenericBase::TBaseState &bState);
 };
 

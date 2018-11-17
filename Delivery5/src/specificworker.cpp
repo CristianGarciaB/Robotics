@@ -105,6 +105,7 @@ void SpecificWorker::compute()
 			abiertos.push_back(inicial);
 			
 			aEstrella();
+			state = State::GOTO;
 		}
 		
 	}
