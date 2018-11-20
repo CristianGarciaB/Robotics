@@ -20,7 +20,8 @@
 #include <unordered_map>
 #include <boost/functional/hash.hpp>
 #include <iostream> 
-
+#include <fstream>
+#include <queue>
 
 template<class T> auto operator<<(std::ostream& os, const T& t) -> decltype(t.save(os), os) 
 { 
@@ -42,6 +43,7 @@ class Grid
 		{
 			int TILE_SIZE = 200;
 			int HMIN=-2500, HMAX=2500, VMIN=-2500, VMAX=2500;
+			
 			Dimensions(int tilesize, int hmin, int hmax, int vmin, int vmax)
 			{
 				TILE_SIZE = tilesize;
@@ -66,7 +68,7 @@ class Grid
 				bool operator==(const Key &other) const
 					{ return x == other.x && z == other.z; };
 				void save(std::ostream &os) const { os << x << " " << z << " "; };	//method to save the keys
-				void read(std::istream &is)  { is >> x >> z; };	//method to read the keys
+				void read(std::istream &is)  { is >> x  >> z; };	//method to read the keys
 		};
 
 		struct KeyHasher
@@ -104,13 +106,18 @@ class Grid
 		typename FMap::const_iterator end() const 	 	{ return fmap.begin(); };
 		size_t size() const 													{ return fmap.size();  };
 		
-		void initialize(const Dimensions &dim_, const T &initValue)
+		void initialize(const Dimensions &dim_, T &&initValue)
 		{
 			dim = dim_;
 			uint k=0;
+			fmap.clear();
 			for( int i = dim.HMIN ; i < dim.HMAX ; i += dim.TILE_SIZE)
 				for( int j = dim.VMIN ; j < dim.VMAX ; j += dim.TILE_SIZE)
-					fmap.emplace( Key(i,j), initValue); 
+				{
+					initValue.id = k++;
+					initValue.cost = 1;
+					fmap.insert_or_assign( Key(i,j), initValue);
+				}
 	
 			// list of increments to access the neighboors of a given position
 			I = dim.TILE_SIZE;
@@ -120,43 +127,33 @@ class Grid
 			std::cout << "Grid::Initialize. Grid initialized to map size: " << fmap.size() << std::endl;	
 		}
 		
-		void readFromFile(const std::string &fich)
+		template<typename Q>
+		void insert(const Key &key, const Q &value)
 		{
-			std::ifstream myfile;
-			myfile.open(fich);
-			Key k; T v;
-			int tile_size;
-			
-			myfile >>tile_size;
-			I = tile_size;
-			xincs = {I,I,I,0,-I,-I,-I,0};
-			zincs = {I,0,-I,-I,-I,0,I,I};	
-			
-			myfile >> k >> v; 
-			while (!myfile.eof() ) 
-			{
-				fmap.emplace( k, v); 
-				std::cout << k << v << std::endl;
-				myfile >> k >> v;
-			}
-			myfile.close();	
+				fmap.insert(std::make_pair(key,value));
 		}
 		
- 		std::vector<std::pair<Key,T>> neighbours(const Key &k) const
+		void clear()
 		{
-			using Cell = std::pair<Key,T>;
-			std::vector<Cell> neigh;
-			
-			for (auto itx = this->xincs.begin(), itz = this->zincs.begin(); itx != this->xincs.end(); ++itx, ++itz)
+				fmap.clear();
+		}
+		
+		void saveToFile(const std::string &fich)
+		{
+			std::ofstream myfile;
+			myfile.open (fich);
+			for(auto &[k, v] : fmap)
 			{
-				Key lk{k.x + *itx, k.z + *itz}; 
-				typename FMap::const_iterator it = fmap.find(lk);
-				if( it != fmap.end() ){
-					neigh.push_back({lk,it->second});
-				}
-			};
-			return neigh;
-		}	
+				myfile << k << v << std::endl;
+			}
+			myfile.close();
+			std::cout << fmap.size() << " elements written to file " << fich << std::endl;
+		}
+		
+		std::list<QVec> getOptimalPath(const QVec &origen, const QVec &dest)
+		{
+			return djikstra(pointToGrid(origen.x(), origen.z()), pointToGrid(dest.x(), dest.z()));
+		}
      
 	private:
 		FMap fmap;
@@ -167,11 +164,92 @@ class Grid
 		std::vector<int> xincs;
 		std::vector<int> zincs;	
 		
+		using Cell = std::pair<Key,T>;
+		std::vector<Cell> neighbours(const Key &k) const
+		{
+			std::vector<Cell> neigh;
+			for (auto itx = this->xincs.begin(), itz = this->zincs.begin(); itx != this->xincs.end(); ++itx, ++itz)
+			{
+				Key lk{k.x + *itx, k.z + *itz}; 
+				typename FMap::const_iterator it = fmap.find(lk);
+				if( it != fmap.end() ) //and not an obstacle
+					neigh.push_back({lk,it->second});
+			};
+			return neigh;
+		}	
+		
 		auto pointToGrid(long int x, long int z) const -> decltype(Key())
 		{
 			int kx = (x-dim.HMIN)/dim.TILE_SIZE;
 			int kz = (z-dim.VMIN)/dim.TILE_SIZE;
 			return Key(dim.HMIN + kx*dim.TILE_SIZE, dim.VMIN + kz*dim.TILE_SIZE);
+		};
+		
+		bool cercaPared(Cell c)
+		{
+			for (auto ed : neighbours(c.first)) 
+			{
+				for (auto ed2 : neighbours(ed.first)) 
+				{
+					if(!ed2.second.free)
+						return true;
+				}
+			}
+			return false;
+		}
+		
+		std::list<QVec> djikstra(const Key &source, const Key &target)
+		{
+			using Elem = std::pair<uint, Key>;
+			std::cout << "Keys " << source << target << " size" << fmap.size() << std::endl;
+			std::vector<uint> min_distance(fmap.size(), INT_MAX);
+			std::vector<Elem> previous(fmap.size(), std::make_pair(-1, Key()));
+			
+			min_distance[ fmap[source].id ] = 0;
+			auto comp = [this](Elem x, Elem y)
+				{ return x.first < y.first or (!(y.first < x.first) and this->fmap[x.second].id < this->fmap[y.second].id); };
+			std::set< Elem, decltype(comp)> active_vertices(comp); //function pointer as Compare
+			
+			active_vertices.insert({0,source});
+			while (!active_vertices.empty()) 
+			{
+				Key where = active_vertices.begin()->second;
+			
+				if (where == target) 
+				{
+					qDebug() << __FILE__ << __FUNCTION__  << "Min distance found:" << min_distance[fmap[where].id];  //exit point 
+					return orderPath(previous, source, target);
+				}
+				active_vertices.erase( active_vertices.begin() );
+				for (auto ed : neighbours(where)) 
+				{
+					qDebug() << "antes del if" << ed.first.x << ed.first.z << ed.second.id << fmap[where].id << min_distance[ed.second.id] << min_distance[fmap[where].id];
+					if (min_distance[ed.second.id] > min_distance[fmap[where].id] + ed.second.cost && ed.second.free && !cercaPared(ed)) 
+					{
+						active_vertices.erase( { min_distance[ed.second.id], ed.first } );
+						min_distance[ed.second.id] = min_distance[fmap[where].id] + ed.second.cost;
+						previous[ed.second.id] = std::make_pair(fmap[where].id, where);
+						active_vertices.insert( { min_distance[ed.second.id], ed.first } );
+					}
+				}
+			}
+			return std::list<QVec>();
+		}
+
+		std::list<QVec> orderPath(const std::vector<std::pair<uint,Key>> &previous, const Key &source, const Key &target)
+		{
+			std::list<QVec> res;
+			Key k = target;
+			uint u = fmap[k].id;
+			while(previous[u].first != (uint)-1)
+			{
+				QVec p = QVec::vec3(k.x, 0, k.z);
+				res.push_front(p);
+				u = previous[u].first;
+				k = previous[u].second;
+			}
+			qDebug() << __FILE__ << __FUNCTION__ << "Path length:" << res.size();  //exit point 
+			return res;
 		};
 };
 
