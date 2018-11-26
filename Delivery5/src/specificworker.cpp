@@ -114,37 +114,6 @@ void SpecificWorker::compute()
 						}
 						else
 						{
-							/*
-							QVec r = innerModel->transform("base", QVec::vec3(currentPoint.x(), 0, currentPoint.z()),"world");
-							
-							float distancia = r.norm2();
-							float angulo = atan2(r.z(), r.x());
-							
-							if (distancia < 100) //Si ha llegado al objetivo
-							{
-								differentialrobot_proxy->stopBase();
-								targetReady = false;
-							}
-							else
-							{
-								float rotMax = 1.4;
-								float advMax = 500;
-								float f2, k;
-								
-								f2 = exp(-(pow((angulo-1.57), 2)/4));
-								
-								if(angulo > 0.57 && angulo < 2.57)
-									k = pow((angulo - 1.57), 2);
-								else
-									k = 1;
-								
-								if (abs(angulo) > 1.57)
-									k = -1;
-								
-								differentialrobot_proxy->setSpeedBase(f2*advMax, k*rotMax);
-								
-							}*/
-							
 							
 							QVec r = innerModel->transform("base", QVec::vec3(currentPoint.x(), 0, currentPoint.z()),"world");
 							float distancia = r.norm2();
@@ -299,12 +268,11 @@ void SpecificWorker::draw()
 	view.show();
 }
 
-/////////////// PATH PLANNING /////7
+/////////////// PATH PLANNING /////////////////////////
 
 
 
-/////////////////////////////////////////////////////////77
-/////////
+//////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 
 void SpecificWorker::setPick(const Pick &myPick)
