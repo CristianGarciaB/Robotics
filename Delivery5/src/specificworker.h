@@ -68,7 +68,7 @@ class SpecificWorker : public GenericWorker
 		std::list<QVec> path;
 		std::vector<QGraphicsEllipseItem *> greenPath;
 		
-    enum State {IDLE=1, GOTO=2, ALIGN=3};
+    enum State {GOTO=1, ALIGN=2};
 		State state = ALIGN;
 		
 		void updateVisitedCells(int x, int z);

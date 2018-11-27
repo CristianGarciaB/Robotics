@@ -81,102 +81,105 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 void SpecificWorker::compute()
 {
-	static RoboCompGenericBase::TBaseState bState;
- 	try
- 	{
- 		differentialrobot_proxy->getBaseState(bState);
-		innerModel->updateTransformValues("base", bState.x, 0, bState.z, 0, bState.alpha, 0);
-		RoboCompLaser::TLaserData ldata = laser_proxy->getLaserData();
-		
-		//draw robot
-		robot->setPos(bState.x, bState.z);
-		robot->setRotation(-180.*bState.alpha/M_PI);
-		
-		//updateVisitedCells(bState.x, bState.z);
-		updateOccupiedCells(bState, ldata);
-		
-		if(targetReady)
-		{
-			if(planReady)
-			{
-				if(path.empty())
-				{
-					qDebug() << "Arrived to target";
-					differentialrobot_proxy->stopBase();
-					targetReady = false; 
-				}
-				else
-						if(innerModel->transform("base", QVec::vec3(currentPoint.x(), 0, currentPoint.z()),"world").norm2() < 150)
-						{
-							currentPoint = path.front();
-							path.pop_front();
-							state = State::ALIGN;
-						}
-						else
-						{
-							
-							QVec r = innerModel->transform("base", QVec::vec3(currentPoint.x(), 0, currentPoint.z()),"world");
-							float distancia = r.norm2();
-							float angulo = atan2(r.z(), r.x());
-							std::cout<<distancia<<std::endl;
-							float rotMax = 0.75;
-							float advMax = 1000;
-							float k = 1;
-							
-							switch(state){
-								
-								case State::ALIGN:{
-									if (angulo < 1.63 && angulo > 1.51) //Si ya está alineado
-									{
-										state = State::GOTO;
-										return;
-									}
-									
-									if(angulo > 0.57 && angulo < 2.57)
-									k = pow((angulo - 1.57), 2) + 0.35;
-								else
-									k = 1;
-									
-									if (abs(angulo) > 1.57)
-										k = -1;
-									
-									differentialrobot_proxy->setSpeedBase(0, k*rotMax);
-								}break;
-									
-								case State::GOTO:
-									QVec r = innerModel->transform("base", QVec::vec3(target.x(), 0, target.z()),"world");
-							float distanciaTarget = r.norm2();
-									if (distanciaTarget < 100)
-									{
-										targetReady = false;
-										differentialrobot_proxy->stopBase();
-										state = State::ALIGN;
-										return;
-									}
-									differentialrobot_proxy->setSpeedBase(300, 0);
-									break;
-							}
-						}
-			}
-			else
-			{
-				qDebug() << bState.x << bState.z << target.x() << target.z() ;
-				path = grid.getOptimalPath(QVec::vec3(bState.x,0,bState.z), target);
-				for(auto &p: path)
-					greenPath.push_back(scene.addEllipse(p.x(),p.z(), 100, 100, QPen(Qt::green), QBrush(Qt::green)));
-				planReady = true;
-				
-			}
-		}
-	}
- 	catch(const Ice::Exception &e)
-	{	std::cout  << e << std::endl; }
-	
-	//Resize world widget if necessary, and render the world
-	if (view.size() != scrollArea->size())
-			view.setFixedSize(scrollArea->width(), scrollArea->height());
-	draw();
-	
+    static RoboCompGenericBase::TBaseState bState;
+    try
+    {
+        differentialrobot_proxy->getBaseState(bState);
+        innerModel->updateTransformValues("base", bState.x, 0, bState.z, 0, bState.alpha, 0);
+        RoboCompLaser::TLaserData ldata = laser_proxy->getLaserData();
+        
+        //draw robot
+        robot->setPos(bState.x, bState.z);
+        robot->setRotation(-180.*bState.alpha/M_PI);
+        
+        //updateVisitedCells(bState.x, bState.z);
+        updateOccupiedCells(bState, ldata);
+        
+        if(targetReady)
+        {
+            if(planReady)
+            {
+                if(path.empty())
+                {
+                    qDebug() << "Arrived to target";
+                    differentialrobot_proxy->stopBase();
+                    targetReady = false; 
+                }
+                else
+                    if(innerModel->transform("base", QVec::vec3(currentPoint.x(), 0, currentPoint.z()),"world").norm2() < 150)
+                    {
+                        currentPoint = path.front();
+                        path.pop_front();
+                        state = State::ALIGN;
+                    }
+                    else
+                    {
+                        
+                        QVec r = innerModel->transform("base", QVec::vec3(currentPoint.x(), 0, currentPoint.z()),"world");
+                        float distancia = r.norm2();
+                        float angulo = atan2(r.z(), r.x());
+                        float rotMax = 0.75;
+//                         float advMax = 1000;
+                        float k = 1;
+                        
+                        switch(state){
+                            
+                            case State::ALIGN:{
+                                if (angulo < 1.63 && angulo > 1.51) //Si ya está alineado
+                                {
+                                    state = State::GOTO;
+                                    return;
+                                }
+                                
+                                if(angulo > 0.57 && angulo < 2.57)
+                                    k = pow((angulo - 1.57), 2) + 0.35;
+                                else
+                                    k = 1;
+                                
+                                if (abs(angulo) > 1.57)
+                                    k = -1;
+                                
+                                differentialrobot_proxy->setSpeedBase(0, k*rotMax);
+                            }break;
+                            
+                            case State::GOTO:{
+                                QVec r = innerModel->transform("base", QVec::vec3(target.x(), 0, target.z()),"world");
+                                                                
+                                
+                                if (distancia < 100)
+                                {
+                                    targetReady = false;
+                                    differentialrobot_proxy->stopBase();
+                                    state = State::ALIGN;
+                                    return;
+                                }
+                                
+                                
+                                differentialrobot_proxy->setSpeedBase(300, 0);
+                            
+                            }break;
+                        }
+                    }
+            }
+            else
+            {
+                qDebug() << bState.x << bState.z << target.x() << target.z() ;
+                path = grid.getOptimalPath(QVec::vec3(bState.x,0,bState.z), target);
+                for(auto &p: path)
+                    greenPath.push_back(scene.addEllipse(p.x(),p.z(), 100, 100, QPen(Qt::green), QBrush(Qt::green)));
+                planReady = true;
+                
+            }
+        }
+    }
+    catch(const Ice::Exception &e)
+    {	std::cout  << e << std::endl; }
+    
+    //Resize world widget if necessary, and render the world
+    if (view.size() != scrollArea->size())
+        view.setFixedSize(scrollArea->width(), scrollArea->height());
+    draw();
+    
 }
 
 void SpecificWorker::saveToFile()
@@ -252,7 +255,7 @@ void SpecificWorker::updateVisitedCells(int x, int z)
 			occupied = false;
 			cont++;
 		}
-		float percentOccupacy = 100. * cont / grid.size();
+// 		float percentOccupacy = 100. * cont / grid.size();
 	}
 }
 
