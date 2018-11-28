@@ -1,13 +1,13 @@
-CommonBehavior.Endpoints=tcp -p 1
-
+CommonBehavior.Endpoints=tcp -p 11001
+InnerModelPath = /home/mariesalguerog/robocomp/files/innermodel/simpleworld.xml
 
 # Endpoints for implemented interfaces
-GotoPoint.Endpoints=tcp -p 0
+GotoPoint.Endpoints=tcp -p 11002
 
 
 # Endpoints for subscriptions
-RCISMousePickerTopic.Endpoints=tcp -p 0
-AprilTagsTopic.Endpoints=tcp -p 0
+RCISMousePickerTopic.Endpoints=tcp -p 11004
+AprilTagsTopic.Endpoints=tcp -p 11003
 
 
 # Proxies for required interfaces
