@@ -51,7 +51,13 @@ public slots:
 
 private:
 	InnerModel *innerModel;
+    
+    QVec target;
+    std::atomic_bool targetReady;
+    std::atomic_bool planReady;
+    std::vector<QGraphicsEllipseItem *> greenPath;
 
+    
 };
 
 #endif

@@ -96,21 +96,38 @@ void SpecificWorker::stop()
 
 }
 
+
+//METODOS A LOS QUE ESTA SUSCRITO, SOLO TENEMOS QUE MOSTRAR PARA SABER QUE LOS PILLA BIEN
+
 void SpecificWorker::setPick(const Pick &myPick)
 {
 //subscribesToCODE
+    target[0] = myPick.x;
+	target[2] = myPick.z;
+	target[1] = 0;
+	qDebug() << __FILE__ << __FUNCTION__ << myPick.x << myPick.z ;
+	targetReady = true;
+	planReady = false;
+	for(auto gp: greenPath)
+		delete gp;
+	greenPath.clear();
 
 }
 
 void SpecificWorker::newAprilTagAndPose(const tagsList &tags, const RoboCompGenericBase::TBaseState &bState, const RoboCompJointMotor::MotorStateMap &hState)
 {
 //subscribesToCODE
+//NO HAY QUE ESCRIBIR NADA DE CODIGO, NO SE COMENTA PARA QUE NO PETE
 
 }
 
+//imprime las variables de la lista de tags que hay en el aprilTag que apunta
 void SpecificWorker::newAprilTag(const tagsList &tags)
 {
 //subscribesToCODE
+    for(auto t:tags)
+        std::cout<<t.id<<" "<<t.tx<<" "<<t.ty<<" "<<t.tz<<std::endl;
+
 
 }
 
