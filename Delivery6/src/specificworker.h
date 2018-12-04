@@ -30,6 +30,7 @@
 #include <genericworker.h>
 #include <innermodel/innermodel.h>
 
+
 class SpecificWorker : public GenericWorker
 {
 Q_OBJECT
@@ -41,6 +42,7 @@ public:
 	void go(const string &nodo, const float x, const float y, const float alpha);
 	void turn(const float speed);
 	bool atTarget();
+    void align();
 	void stop();
 	void setPick(const Pick &myPick);
 	void newAprilTagAndPose(const tagsList &tags, const RoboCompGenericBase::TBaseState &bState, const RoboCompJointMotor::MotorStateMap &hState);
@@ -50,12 +52,24 @@ public slots:
 	void compute();
 
 private:
-	InnerModel *innerModel;
+    
+    //-------------ESTRUCTURAS-------------
+    enum State {IDLE=1, GOTO=2, ALIGN=3};
+    State state = IDLE;
+	
+    
+    InnerModel *innerModel;
     
     QVec target;
     std::atomic_bool targetReady;
-    std::atomic_bool planReady;
+//     std::atomic_bool planReady;
     std::vector<QGraphicsEllipseItem *> greenPath;
+    
+    
+    float distancia;
+    float angulo;
+    float rotMax = 0.75;
+    float k = 1;
 
     
 };

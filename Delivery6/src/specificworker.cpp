@@ -58,11 +58,78 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 void SpecificWorker::compute()
 {
     //cuando el estado es goto tiene que pasar al metodo go 
-    
-    
-    
     //cuando vuelve del atTarget con TRUE espera una siguiente marca (target) que se la envia el mission planner
     
+    //........................................................//
+    
+    static RoboCompGenericBase::TBaseState bState;
+    try
+    {
+    
+        differentialrobot_proxy->getBaseState(bState);
+        innerModel->updateTransformValues("base", bState.x, 0, bState.z, 0, bState.alpha, 0);
+        
+        RoboCompLaser::TLaserData ldata = laser_proxy->getLaserData();        
+        
+        if(targetReady){ //cuando recibe un target del mission planner esta a true
+            switch (state){
+                case State::IDLE: {
+                    if (atTarget()){ //si ha llegado al target
+                        std::cout << "AT TARGET. STOP." << std::endl;
+                        differentialrobot_proxy->stopBase(); 
+                        targetReady = false;
+                    }
+                    else { //si no ha llegado al target, tiene que seguir hacia él
+                        state = State::GOTO;
+                    }                        
+                }break;
+                
+                case State::GOTO: { //va hacia el target
+                    
+                    std::cout << "GO TO THE TARGET" << std::endl;
+                    
+                    //TODO meter parametros
+//                     go();   
+                    
+                }break;
+                
+                case State::ALIGN: {
+
+                    
+                    QVec r = innerModel->transform(
+                    "base", QVec::vec3(target.x(), 0, target.z()), "world");
+                    
+                    distancia = r.norm2();
+                    angulo = atan2(r.z(), r.x());
+
+                    align(); 
+                    //ya ha sido alineado
+                    differentialrobot_proxy->setSpeedBase(0, k*rotMax);
+
+                }break;
+                
+            }
+        }
+        
+        else{ //ya no hay mas target en el mission planner
+            std::cout << "There aren't more aprilTags to visit" << std::endl;
+            differentialrobot_proxy->stopBase();
+            
+            //guardar las marcas en una lista que tiene el mission planner y este le envia al robot el siguiente target
+            
+            //aqui es donde el mission planner tiene que mandarle una marca
+            //target = lo que le mande el mission planner
+            
+            //cuando hay una nueva marca pasa al goto
+            targetReady = true;
+            state = State::GOTO;
+    
+     
+        }
+        
+    }
+    catch(const Ice::Exception &e)
+    {	std::cout  << e << std::endl; }
     
 	QMutexLocker locker(mutex);
 	//computeCODE
@@ -97,12 +164,29 @@ bool SpecificWorker::atTarget()
 {
     bool arrived = false;
     
-    if (){
-        
+    if (distancia < 100){
+        arrived = true;      
     }
     
     return arrived;
 
+}
+
+void SpecificWorker::align(){
+                        
+    if (angulo < 1.63 && angulo > 1.51) //Si ya está alineado
+    {
+        state = State::GOTO;
+        return;
+    }
+    
+    if(angulo > 0.57 && angulo < 2.57)
+        k = pow((angulo - 1.57), 2) + 0.35;
+    else
+        k = 1;
+    
+    if (abs(angulo) > 1.57)
+        k = -1;
 }
 
 void SpecificWorker::stop()
@@ -123,7 +207,7 @@ void SpecificWorker::setPick(const Pick &myPick)
 	target[1] = 0;
 	qDebug() << __FILE__ << __FUNCTION__ << myPick.x << myPick.z ;
 	targetReady = true;
-	planReady = false;
+// 	planReady = false;
 	for(auto gp: greenPath)
 		delete gp;
 	greenPath.clear();
@@ -143,11 +227,6 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
 //subscribesToCODE
     for(auto t:tags)
         std::cout<<t.id<<" "<<t.tx<<" "<<t.ty<<" "<<t.tz<<std::endl;
-
-    //guardar las marcas en una lista que tiene el mission planner y este le envia al robot el siguiente target
-    
-    //cuando hay una nueva marca pasa al goto 
-    //
 
 }
 
