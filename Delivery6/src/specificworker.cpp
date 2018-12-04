@@ -57,6 +57,13 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 void SpecificWorker::compute()
 {
+    //cuando el estado es goto tiene que pasar al metodo go 
+    
+    
+    
+    //cuando vuelve del atTarget con TRUE espera una siguiente marca (target) que se la envia el mission planner
+    
+    
 	QMutexLocker locker(mutex);
 	//computeCODE
 // 	try
@@ -75,6 +82,8 @@ void SpecificWorker::compute()
 void SpecificWorker::go(const string &nodo, const float x, const float y, const float alpha)
 {
 //implementCODE
+    
+    //copiamos lo de la practica anterior para moverse (con alguna modificacion)
 
 }
 
@@ -86,13 +95,20 @@ void SpecificWorker::turn(const float speed)
 
 bool SpecificWorker::atTarget()
 {
-//implementCODE
+    bool arrived = false;
+    
+    if (){
+        
+    }
+    
+    return arrived;
 
 }
 
 void SpecificWorker::stop()
 {
 //implementCODE
+    //espera un nuevo target
 
 }
 
@@ -128,6 +144,10 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
     for(auto t:tags)
         std::cout<<t.id<<" "<<t.tx<<" "<<t.ty<<" "<<t.tz<<std::endl;
 
+    //guardar las marcas en una lista que tiene el mission planner y este le envia al robot el siguiente target
+    
+    //cuando hay una nueva marca pasa al goto 
+    //
 
 }
 
