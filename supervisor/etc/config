@@ -1,13 +1,6 @@
 CommonBehavior.Endpoints=tcp -p 11001
 
-
-# Endpoints for subscriptions
-AprilTagsTopic.Endpoints=tcp -p 11003
-
-
-# Proxies for required interfaces
-DifferentialRobotProxy = differentialrobot:tcp -h localhost -p 10004
-
+GotoPointProxy = gotopoint:tcp -h localhost -p 12000
 
 # This property is used by the clients to connect to IceStorm.
 TopicManager.Proxy=IceStorm/TopicManager:default -p 9999

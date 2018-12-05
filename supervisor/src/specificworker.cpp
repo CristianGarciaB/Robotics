@@ -38,37 +38,41 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
 //       THE FOLLOWING IS JUST AN EXAMPLE
 //	To use innerModelPath parameter you should uncomment specificmonitor.cpp readConfig method content
-//	try
-//	{
-//		RoboCompCommonBehavior::Parameter par = params.at("InnerModelPath");
-//		std::string innermodel_path = par.value;
-//		innerModel = new InnerModel(innermodel_path);
-//	}
-//	catch(std::exception e) { qFatal("Error reading config params"); }
+	try
+	{
+		RoboCompCommonBehavior::Parameter par = params.at("InnerModelPath");
+		std::string innermodel_path = par.value;
+		innerModel = new InnerModel(innermodel_path);
+	}
+	catch(std::exception e) { qFatal("Error reading config params"); }
 
+	for(int i=0; i<4; i++)
+        {
+            QString name = "target0" + QString::number(i);
+            QVec r = innerModel->transform("world", name);
+            myList.push_back(r);
+        }
 
-
-
-	timer.start(Period);
-
+	timer.start(300);
 
 	return true;
 }
 
 void SpecificWorker::compute()
 {
-	QMutexLocker locker(mutex);
-	//computeCODE
-// 	try
-// 	{
-// 		camera_proxy->getYImage(0,img, cState, bState);
-// 		memcpy(image_gray.data, &img[0], m_width*m_height*sizeof(uchar));
-// 		searchTags(image_gray);
-// 	}
-// 	catch(const Ice::Exception &e)
-// 	{
-// 		std::cout << "Error reading from Camera" << e << std::endl;
-// 	}
+    static int indice = 0;
+    try
+    {
+        if ( gotopoint_proxy->atTarget())
+        {
+           indice = indice % 4;
+           gotopoint_proxy->go(nullptr, myList[indice].x(), myList[indice].z(), 0);
+        }
+    }
+    catch(const Ice::Exception &e)
+    {
+        std::cout << e.what() << std::endl;
+    }
 }
 
 

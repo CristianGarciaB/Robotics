@@ -44,6 +44,7 @@ public slots:
 
 private:
 	InnerModel *innerModel;
+        std::vector<QVec> myList;
 
 };
 

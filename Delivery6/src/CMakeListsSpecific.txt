@@ -11,5 +11,6 @@ SET ( HEADERS
   specificmonitor.h
 )
 
-ADD_DEFINITIONS( -std=c++11 )
+ADD_DEFINITIONS( -std=c++17 )
+
 

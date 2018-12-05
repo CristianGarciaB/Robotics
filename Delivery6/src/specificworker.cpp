@@ -106,7 +106,7 @@ void SpecificWorker::compute()
                     qDebug() << "Arrived to target";
                     differentialrobot_proxy->stopBase();
                     targetReady = false; 
-                    atTarget = true;
+                    //TODO si no lo ha visto, girarse hacia la apriultag
                 }
                 else
                     if(innerModel->transform("base", QVec::vec3(currentPoint.x(), 0, currentPoint.z()),"world").norm2() < 150)
@@ -243,6 +243,7 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
     for(auto t:tags)
         std::cout<<t.id<<" "<<t.tx<<" "<<t.ty<<" "<<t.tz<<std::endl;
     
+    atTarget = true;
 }
 
 void SpecificWorker::saveToFile()
@@ -307,7 +308,3 @@ void SpecificWorker::draw()
     view.show();
 }
 
-
-//Consideramos que llegamos al ultimo punto del path o cuando detectamos la apriltag
-//Que son los parametros del metodo go
-//Error de compilacion
