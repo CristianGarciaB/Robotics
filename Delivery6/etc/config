@@ -1,4 +1,4 @@
-CommonBehavior.Endpoints=tcp -p 11001
+CommonBehavior.Endpoints=tcp -p 11067
 InnerModelPath = /home/salabeta/robocomp/files/innermodel/simpleworld.xml
 
 # Endpoints for implemented interfaces

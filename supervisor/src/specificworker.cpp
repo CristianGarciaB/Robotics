@@ -52,6 +52,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
             QVec r = innerModel->transform("world", name);
             myList.push_back(r);
         }
+        
 
 	timer.start(300);
 
@@ -60,13 +61,15 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 void SpecificWorker::compute()
 {
+
     static int indice = 0;
     try
     {
         if ( gotopoint_proxy->atTarget())
         {
            indice = indice % 4;
-           gotopoint_proxy->go(nullptr, myList[indice].x(), myList[indice].z(), 0);
+           std::cout<<"hola"<<std::endl;
+           gotopoint_proxy->go("", myList[indice].x(), myList[indice].z(), 0);
         }
     }
     catch(const Ice::Exception &e)

@@ -78,6 +78,8 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
     
     timer.start();
     
+    isAtTarget.store(true);
+    
     return true;
 }
 
@@ -191,6 +193,8 @@ void SpecificWorker::go(const string &nodo, const float x, const float y, const 
     target[0] = x;
     target[2] = y;
     targetReady.store(true);
+    isAtTarget.store(false);
+    std::cout<<"he recibido algo"<<std::endl;
 }
 
 void SpecificWorker::turn(const float speed)
@@ -201,7 +205,7 @@ void SpecificWorker::turn(const float speed)
 
 bool SpecificWorker::atTarget()
 { 
-    return atTarget.load();
+    return isAtTarget.load();
 }
 
 void SpecificWorker::stop()
@@ -243,7 +247,7 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
     for(auto t:tags)
         std::cout<<t.id<<" "<<t.tx<<" "<<t.ty<<" "<<t.tz<<std::endl;
     
-    atTarget = true;
+    isAtTarget = true;
 }
 
 void SpecificWorker::saveToFile()

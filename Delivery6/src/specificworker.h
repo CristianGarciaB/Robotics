@@ -70,7 +70,7 @@ private:
     std::string fileName = "map.txt";
     const int tilesize = 70;
     std::atomic_bool targetReady;
-    std::atomic_bool atTarget;
+    std::atomic_bool isAtTarget;
     std::atomic<bool> planReady;
     QVec currentPoint;
     QVec sigPunto;
