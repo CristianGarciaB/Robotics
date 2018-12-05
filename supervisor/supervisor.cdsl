@@ -1,0 +1,12 @@
+import "/DifferentialRobot.idsl";
+import "/AprilTags.idsl";
+
+Component supervisor{
+    Communications{
+        requires DifferentialRobot;
+	subscribesTo AprilTags;
+    };
+
+language Cpp;
+gui Qt(QWidget); 
+};
