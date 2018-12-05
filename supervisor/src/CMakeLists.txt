@@ -26,14 +26,13 @@ SET ( SOURCES
   commonbehaviorI.cpp
   genericworker.cpp
   specificworker.cpp
-  apriltagsI.cpp
 )
 
 
 
 #ROBOCOMP
 ROBOCOMP_INITIALIZE( $ENV{ROBOCOMP}/ )
-ROBOCOMP_WRAP_ICE( CommonBehavior DifferentialRobot  GenericBase  AprilTags  GenericBase  JointMotor )
+ROBOCOMP_WRAP_ICE( CommonBehavior GotoPoint )
 SET (EXECUTABLE_OUTPUT_PATH ${RC_COMPONENT_DEVEL_PATH}/bin)
 
 # Qt4

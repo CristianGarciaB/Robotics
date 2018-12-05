@@ -1,10 +1,8 @@
-import "/DifferentialRobot.idsl";
-import "/AprilTags.idsl";
+import "GotoPoint.idsl";
 
 Component supervisor{
     Communications{
-        requires DifferentialRobot;
-	subscribesTo AprilTags;
+        requires GotoPoint;
     };
 
 language Cpp;

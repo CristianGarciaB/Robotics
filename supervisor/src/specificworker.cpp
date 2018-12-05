@@ -72,17 +72,4 @@ void SpecificWorker::compute()
 }
 
 
-void SpecificWorker::newAprilTagAndPose(const tagsList &tags, const RoboCompGenericBase::TBaseState &bState, const RoboCompJointMotor::MotorStateMap &hState)
-{
-//subscribesToCODE
-
-}
-
-void SpecificWorker::newAprilTag(const tagsList &tags)
-{
-//subscribesToCODE
- for(auto t:tags)
-        std::cout<<t.id<<" "<<t.tx<<" "<<t.ty<<" "<<t.tz<<std::endl;
-}
-
 

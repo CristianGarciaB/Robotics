@@ -81,13 +81,8 @@
 #include "specificmonitor.h"
 #include "commonbehaviorI.h"
 
-#include <apriltagsI.h>
 
-#include <DifferentialRobot.h>
-#include <GenericBase.h>
-#include <AprilTags.h>
-#include <GenericBase.h>
-#include <JointMotor.h>
+#include <GotoPoint.h>
 
 
 // User includes here
@@ -139,7 +134,7 @@ int ::supervisor::run(int argc, char* argv[])
 
 	int status=EXIT_SUCCESS;
 
-	DifferentialRobotPrx differentialrobot_proxy;
+	GotoPointPrx gotopoint_proxy;
 
 	string proxy, tmp;
 	initialize();
@@ -147,30 +142,20 @@ int ::supervisor::run(int argc, char* argv[])
 
 	try
 	{
-		if (not GenericMonitor::configGetString(communicator(), prefix, "DifferentialRobotProxy", proxy, ""))
+		if (not GenericMonitor::configGetString(communicator(), prefix, "GotoPointProxy", proxy, ""))
 		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy DifferentialRobotProxy\n";
+			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy GotoPointProxy\n";
 		}
-		differentialrobot_proxy = DifferentialRobotPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
+		gotopoint_proxy = GotoPointPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
 	}
 	catch(const Ice::Exception& ex)
 	{
 		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
 		return EXIT_FAILURE;
 	}
-	rInfo("DifferentialRobotProxy initialized Ok!");
-	mprx["DifferentialRobotProxy"] = (::IceProxy::Ice::Object*)(&differentialrobot_proxy);//Remote server proxy creation example
+	rInfo("GotoPointProxy initialized Ok!");
+	mprx["GotoPointProxy"] = (::IceProxy::Ice::Object*)(&gotopoint_proxy);//Remote server proxy creation example
 
-	IceStorm::TopicManagerPrx topicManager;
-	try
-	{
-		topicManager = IceStorm::TopicManagerPrx::checkedCast(communicator()->propertyToProxy("TopicManager.Proxy"));
-	}
-	catch (const Ice::Exception &ex)
-	{
-		cout << "[" << PROGRAM_NAME << "]: Exception: STORM not running: " << ex << endl;
-		return EXIT_FAILURE;
-	}
 
 
 	SpecificWorker *worker = new SpecificWorker(mprx);
@@ -207,34 +192,6 @@ int ::supervisor::run(int argc, char* argv[])
 
 
 		// Server adapter creation and publication
-		if (not GenericMonitor::configGetString(communicator(), prefix, "AprilTagsTopic.Endpoints", tmp, ""))
-		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy AprilTagsProxy";
-		}
-		Ice::ObjectAdapterPtr AprilTags_adapter = communicator()->createObjectAdapterWithEndpoints("apriltags", tmp);
-		AprilTagsPtr apriltagsI_ = new AprilTagsI(worker);
-		Ice::ObjectPrx apriltags = AprilTags_adapter->addWithUUID(apriltagsI_)->ice_oneway();
-		IceStorm::TopicPrx apriltags_topic;
-		if(!apriltags_topic){
-		try {
-			apriltags_topic = topicManager->create("AprilTags");
-		}
-		catch (const IceStorm::TopicExists&) {
-		//Another client created the topic
-		try{
-			apriltags_topic = topicManager->retrieve("AprilTags");
-		}
-		catch(const IceStorm::NoSuchTopic&)
-		{
-			//Error. Topic does not exist
-			}
-		}
-		IceStorm::QoS qos;
-		apriltags_topic->subscribeAndGetPublisher(qos, apriltags);
-		}
-		AprilTags_adapter->activate();
-
-		// Server adapter creation and publication
 		cout << SERVER_FULL_NAME " started" << endl;
 
 		// User defined QtGui elements ( main window, dialogs, etc )
@@ -246,8 +203,6 @@ int ::supervisor::run(int argc, char* argv[])
 		// Run QT Application Event Loop
 		a.exec();
 
-		std::cout << "Unsubscribing topic: apriltags " <<std::endl;
-		apriltags_topic->unsubscribe( apriltags );
 
 		status = EXIT_SUCCESS;
 	}
