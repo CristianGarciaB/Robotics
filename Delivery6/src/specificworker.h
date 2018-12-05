@@ -18,9 +18,9 @@
  */
 
 /**
-       \brief
-       @author authorname
-*/
+ *       \brief
+ *       @author authorname
+ */
 
 
 
@@ -29,48 +29,88 @@
 
 #include <genericworker.h>
 #include <innermodel/innermodel.h>
-
+#include "grid.h"
+#include <QGraphicsScene>
+#include <QGraphicsView>
+#include <QGraphicsEllipseItem>
+#include <iostream>
+#include <fstream>
+#include <queue>
+#include <atomic>
 
 class SpecificWorker : public GenericWorker
 {
-Q_OBJECT
+    Q_OBJECT
 public:
-	SpecificWorker(MapPrx& mprx);
-	~SpecificWorker();
-	bool setParams(RoboCompCommonBehavior::ParameterList params);
-
-	void go(const string &nodo, const float x, const float y, const float alpha);
-	void turn(const float speed);
-	bool atTarget();
-    void align();
-	void stop();
-	void setPick(const Pick &myPick);
-	void newAprilTagAndPose(const tagsList &tags, const RoboCompGenericBase::TBaseState &bState, const RoboCompJointMotor::MotorStateMap &hState);
-	void newAprilTag(const tagsList &tags);
-
+    SpecificWorker(MapPrx& mprx);
+    ~SpecificWorker();
+    bool setParams(RoboCompCommonBehavior::ParameterList params);
+    
+    void go(const string &nodo, const float x, const float y, const float alpha);
+    void turn(const float speed);
+    bool atTarget();
+    void stop();
+    void setPick(const Pick &myPick);
+    void newAprilTagAndPose(const tagsList &tags, const RoboCompGenericBase::TBaseState &bState, const RoboCompJointMotor::MotorStateMap &hState);
+    void newAprilTag(const tagsList &tags);
+    
 public slots:
-	void compute();
-
+    void compute();
+    void saveToFile();
+    void readFromFile();
+    
 private:
-    
-    //-------------ESTRUCTURAS-------------
-    enum State {IDLE=1, GOTO=2, ALIGN=3};
-    State state = IDLE;
-	
-    
-    InnerModel *innerModel;
-    
+    std::shared_ptr<InnerModel> innerModel;
+    QGraphicsScene scene;
+    QGraphicsView view;
+    void draw();
+    QGraphicsRectItem *robot;
+    QGraphicsEllipseItem *noserobot;
     QVec target;
+    std::string fileName = "map.txt";
+    const int tilesize = 70;
     std::atomic_bool targetReady;
-//     std::atomic_bool planReady;
+    std::atomic_bool atTarget;
+    std::atomic<bool> planReady;
+    QVec currentPoint;
+    QVec sigPunto;
+    std::list<QVec> path;
     std::vector<QGraphicsEllipseItem *> greenPath;
     
+    enum State {GOTO=1, ALIGN=2};
+    State state = ALIGN;
     
-    float distancia;
-    float angulo;
-    float rotMax = 0.75;
-    float k = 1;
-
+    void updateVisitedCells(int x, int z);
+    void updateOccupiedCells(const RoboCompGenericBase::TBaseState &bState, const RoboCompLaser::TLaserData &ldata);
+    void checkTransform(const RoboCompGenericBase::TBaseState &bState);
+    
+    /// Grid
+    struct TCell
+    {
+        uint id;
+        bool free;
+        bool visited;
+        QGraphicsRectItem* rect;
+        float cost = 1;
+        
+        TCell(uint id, bool free, bool visited,QGraphicsRectItem* rect, float cost)
+        {
+            this->id = id;
+            this->free = free;
+            this->visited = visited;
+            this->rect = rect;
+            this->cost = cost;
+        }
+        
+        TCell(){}
+        // method to save the value
+        void save(std::ostream &os) const {	os << free << " " << visited; };
+        void read(std::istream &is) {	is >> free >> visited ;};
+    };
+    
+    using TDim = Grid<TCell>::Dimensions;
+    Grid<TCell> grid;
+    
     
 };
 

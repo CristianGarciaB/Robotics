@@ -19,181 +19,196 @@
 #include "specificworker.h"
 
 /**
-* \brief Default constructor
-*/
+ * \brief Default constructor
+ */
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
-
+    
 }
 
 /**
-* \brief Default destructor
-*/
+ * \brief Default destructor
+ */
 SpecificWorker::~SpecificWorker()
 {
-
+    
 }
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
-//       THE FOLLOWING IS JUST AN EXAMPLE
-//
-//	try
-//	{
-//		RoboCompCommonBehavior::Parameter par = params.at("InnerModelPath");
-//		innermodel_path = par.value;
-//		innermodel = new InnerModel(innermodel_path);
-//	}
-//	catch(std::exception e) { qFatal("Error reading config params"); }
-
-
-
-
-	timer.start(Period);
-
-
-	return true;
+    try
+    {
+        RoboCompCommonBehavior::Parameter par = params.at("InnerModelPath");
+        innerModel = std::make_shared<InnerModel>(par.value);
+    }
+    catch(std::exception e) { qFatal("Error reading config params"); }
+    
+    qDebug() << __FILE__ ;
+    
+    targetReady.store(false);
+    planReady.store(false);
+    
+    // Scene
+    scene.setSceneRect(-2500, -2500, 5000, 5000);
+    view.setScene(&scene);
+    view.scale(1, -1);
+    view.setParent(scrollArea);
+    //view.setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
+    view.fitInView(scene.sceneRect(), Qt::KeepAspectRatio );
+    
+    grid.initialize( TDim{ tilesize, -2500, 2500, -2500, 2500}, TCell{0, true, false, nullptr, 0.} );
+    
+    for(auto &[key, value] : grid)
+    {
+        auto tile = scene.addRect(-tilesize/2,-tilesize/2, 100,100, QPen(Qt::NoPen));
+        tile->setPos(key.x,key.z);
+        value.rect = tile;
+    }
+    
+    robot = scene.addRect(QRectF(-200, -200, 400, 400), QPen(), QBrush(Qt::blue));
+    noserobot = new QGraphicsEllipseItem(-50,100, 100,100, robot);
+    noserobot->setBrush(Qt::magenta);
+    
+    target = QVec::vec3(0,0,0);
+    
+    //qDebug() << __FILE__ << __FUNCTION__ << "CPP " << __cplusplus;
+    
+    connect(buttonSave, SIGNAL(clicked()), this, SLOT(saveToFile()));
+    connect(buttonRead, SIGNAL(clicked()), this, SLOT(readFromFile()));
+    
+    timer.start();
+    
+    return true;
 }
 
 void SpecificWorker::compute()
 {
-    //cuando el estado es goto tiene que pasar al metodo go 
-    //cuando vuelve del atTarget con TRUE espera una siguiente marca (target) que se la envia el mission planner
-    
-    //........................................................//
-    
+    QMutexLocker locker(mutex);
     static RoboCompGenericBase::TBaseState bState;
     try
     {
-    
         differentialrobot_proxy->getBaseState(bState);
         innerModel->updateTransformValues("base", bState.x, 0, bState.z, 0, bState.alpha, 0);
+        RoboCompLaser::TLaserData ldata = laser_proxy->getLaserData();
         
-        RoboCompLaser::TLaserData ldata = laser_proxy->getLaserData();        
+        //draw robot
+        robot->setPos(bState.x, bState.z);
+        robot->setRotation(-180.*bState.alpha/M_PI);
         
-        if(targetReady){ //cuando recibe un target del mission planner esta a true
-            switch (state){
-                case State::IDLE: {
-                    if (atTarget()){ //si ha llegado al target
-                        std::cout << "AT TARGET. STOP." << std::endl;
-                        differentialrobot_proxy->stopBase(); 
-                        targetReady = false;
+        updateOccupiedCells(bState, ldata);
+        
+        if(targetReady)
+        {
+            if(planReady)
+            {
+                if(path.empty())
+                {
+                    qDebug() << "Arrived to target";
+                    differentialrobot_proxy->stopBase();
+                    targetReady = false; 
+                    atTarget = true;
+                }
+                else
+                    if(innerModel->transform("base", QVec::vec3(currentPoint.x(), 0, currentPoint.z()),"world").norm2() < 150)
+                    {
+                        currentPoint = path.front();
+                        path.pop_front();
+                        state = State::ALIGN;
                     }
-                    else { //si no ha llegado al target, tiene que seguir hacia él
-                        state = State::GOTO;
-                    }                        
-                }break;
-                
-                case State::GOTO: { //va hacia el target
-                    
-                    std::cout << "GO TO THE TARGET" << std::endl;
-                    
-                    //TODO meter parametros
-//                     go();   
-                    
-                }break;
-                
-                case State::ALIGN: {
-
-                    
-                    QVec r = innerModel->transform(
-                    "base", QVec::vec3(target.x(), 0, target.z()), "world");
-                    
-                    distancia = r.norm2();
-                    angulo = atan2(r.z(), r.x());
-
-                    align(); 
-                    //ya ha sido alineado
-                    differentialrobot_proxy->setSpeedBase(0, k*rotMax);
-
-                }break;
+                    else
+                    {
+                        
+                        QVec r = innerModel->transform("base", QVec::vec3(currentPoint.x(), 0, currentPoint.z()),"world");
+                        float distancia = r.norm2();
+                        float angulo = atan2(r.z(), r.x());
+                        float rotMax = 0.75;
+                        //                         float advMax = 1000;
+                        float k = 1;
+                        
+                        switch(state){
+                            
+                            case State::ALIGN:{
+                                if (angulo < 1.63 && angulo > 1.51) //Si ya está alineado
+                                {
+                                    state = State::GOTO;
+                                    return;
+                                }
+                                
+                                if(angulo > 0.57 && angulo < 2.57)
+                                    k = pow((angulo - 1.57), 2) + 0.35;
+                                else
+                                    k = 1;
+                                
+                                if (abs(angulo) > 1.57)
+                                    k = -1;
+                                
+                                differentialrobot_proxy->setSpeedBase(0, k*rotMax);
+                            }break;
+                            
+                            case State::GOTO:{
+                                QVec r = innerModel->transform("base", QVec::vec3(target.x(), 0, target.z()),"world");
+                                
+                                
+                                if (distancia < 100)
+                                {
+                                    targetReady = false;
+                                    differentialrobot_proxy->stopBase();
+                                    state = State::ALIGN;
+                                    return;
+                                }
+                                
+                                
+                                differentialrobot_proxy->setSpeedBase(300, 0);
+                                
+                            }break;
+                        }
+                    }
+            }
+            else
+            {
+                qDebug() << bState.x << bState.z << target.x() << target.z() ;
+                path = grid.getOptimalPath(QVec::vec3(bState.x,0,bState.z), target);
+                for(auto &p: path)
+                    greenPath.push_back(scene.addEllipse(p.x(),p.z(), 100, 100, QPen(Qt::green), QBrush(Qt::green)));
+                planReady = true;
                 
             }
-        }
-        
-        else{ //ya no hay mas target en el mission planner
-            std::cout << "There aren't more aprilTags to visit" << std::endl;
-            differentialrobot_proxy->stopBase();
-            
-            //guardar las marcas en una lista que tiene el mission planner y este le envia al robot el siguiente target
-            
-            //aqui es donde el mission planner tiene que mandarle una marca
-            //target = lo que le mande el mission planner
-            
-            //cuando hay una nueva marca pasa al goto
-            targetReady = true;
-            state = State::GOTO;
-    
-     
         }
         
     }
     catch(const Ice::Exception &e)
     {	std::cout  << e << std::endl; }
     
-	QMutexLocker locker(mutex);
-	//computeCODE
-// 	try
-// 	{
-// 		camera_proxy->getYImage(0,img, cState, bState);
-// 		memcpy(image_gray.data, &img[0], m_width*m_height*sizeof(uchar));
-// 		searchTags(image_gray);
-// 	}
-// 	catch(const Ice::Exception &e)
-// 	{
-// 		std::cout << "Error reading from Camera" << e << std::endl;
-// 	}
+    //Resize world widget if necessary, and render the world
+    if (view.size() != scrollArea->size())
+        view.setFixedSize(scrollArea->width(), scrollArea->height());
+    draw();
+    
 }
-
 
 void SpecificWorker::go(const string &nodo, const float x, const float y, const float alpha)
 {
-//implementCODE
-    
-    //copiamos lo de la practica anterior para moverse (con alguna modificacion)
-
+    target[0] = x;
+    target[2] = y;
+    targetReady.store(true);
 }
 
 void SpecificWorker::turn(const float speed)
 {
-//implementCODE
-
+    //implementCODE
+    
 }
 
 bool SpecificWorker::atTarget()
-{
-    bool arrived = false;
-    
-    if (distancia < 100){
-        arrived = true;      
-    }
-    
-    return arrived;
-
-}
-
-void SpecificWorker::align(){
-                        
-    if (angulo < 1.63 && angulo > 1.51) //Si ya está alineado
-    {
-        state = State::GOTO;
-        return;
-    }
-    
-    if(angulo > 0.57 && angulo < 2.57)
-        k = pow((angulo - 1.57), 2) + 0.35;
-    else
-        k = 1;
-    
-    if (abs(angulo) > 1.57)
-        k = -1;
+{ 
+    return atTarget.load();
 }
 
 void SpecificWorker::stop()
 {
-//implementCODE
+    //implementCODE
     //espera un nuevo target
-
+    
 }
 
 
@@ -201,33 +216,98 @@ void SpecificWorker::stop()
 
 void SpecificWorker::setPick(const Pick &myPick)
 {
-//subscribesToCODE
+    //subscribesToCODE
     target[0] = myPick.x;
-	target[2] = myPick.z;
-	target[1] = 0;
-	qDebug() << __FILE__ << __FUNCTION__ << myPick.x << myPick.z ;
-	targetReady = true;
-// 	planReady = false;
-	for(auto gp: greenPath)
-		delete gp;
-	greenPath.clear();
-
+    target[2] = myPick.z;
+    target[1] = 0;
+    qDebug() << __FILE__ << __FUNCTION__ << myPick.x << myPick.z ;
+    targetReady = true;
+    planReady = false;
+    for(auto gp: greenPath)
+        delete gp;
+    greenPath.clear();
+    
 }
 
 void SpecificWorker::newAprilTagAndPose(const tagsList &tags, const RoboCompGenericBase::TBaseState &bState, const RoboCompJointMotor::MotorStateMap &hState)
 {
-//subscribesToCODE
-//NO HAY QUE ESCRIBIR NADA DE CODIGO, NO SE COMENTA PARA QUE NO PETE
-
+    //subscribesToCODE
+    //NO HAY QUE ESCRIBIR NADA DE CODIGO, NO SE COMENTA PARA QUE NO PETE
+    
 }
 
 //imprime las variables de la lista de tags que hay en el aprilTag que apunta
 void SpecificWorker::newAprilTag(const tagsList &tags)
 {
-//subscribesToCODE
+    //subscribesToCODE
     for(auto t:tags)
         std::cout<<t.id<<" "<<t.tx<<" "<<t.ty<<" "<<t.tz<<std::endl;
+    
+}
 
+void SpecificWorker::saveToFile()
+{
+    grid.saveToFile(fileName);
+}
+
+void SpecificWorker::readFromFile()
+{
+    std::ifstream myfile;
+    myfile.open(fileName, std::ifstream::in);
+    
+    if(!myfile.fail())
+    {
+        //grid.initialize( TDim{ tilesize, -2500, 2500, -2500, 2500}, TCell{true, false, nullptr} );
+        for( auto &[k,v] : grid)
+            delete v.rect;
+        grid.clear();
+        Grid<TCell>::Key key; TCell value;
+        myfile >> key >> value;
+        int k=0;
+        while(!myfile.eof()) 
+        {
+            auto tile = scene.addRect(-tilesize/2,-tilesize/2, 100,100, QPen(Qt::NoPen));;
+            tile->setPos(key.x,key.z);
+            value.rect = tile;
+            value.id = k++;
+            value.cost = 1;
+            grid.insert<TCell>(key,value);
+            myfile >> key >> value;
+        }
+        myfile.close();	
+        robot->setZValue(1);
+        std::cout << grid.size() << " elements read to grid " << fileName << std::endl;
+    }
+    else
+        throw std::runtime_error("Cannot open file");
+}
+
+void SpecificWorker::updateOccupiedCells(const RoboCompGenericBase::TBaseState &bState, const RoboCompLaser::TLaserData &ldata)
+{
+    auto *n = innerModel->getNode<InnerModelLaser>("laser");
+    for(auto l: ldata)
+    {
+        auto r = n->laserTo("world", l.dist, l.angle);	// r is in world reference system
+        // we set the cell corresponding to r as occupied 
+        auto [valid, cell] = grid.getCell(r.x(), r.z()); 
+        if(valid)
+            cell.free = false;
+    }
+}
+
+void SpecificWorker::draw()
+{
+    for(auto &[key, value] : grid)
+    {
+        // 		if(value.visited == false)
+        // 			value.rect->setBrush(Qt::lightGray);
+        if(value.free == false)
+            value.rect->setBrush(Qt::darkRed);
+    }
+    view.show();
 }
 
 
+//Consideramos que llegamos al ultimo punto del path o cuando detectamos la apriltag
+//Que son los parametros del metodo go
+//Error de compilacion
