@@ -170,8 +170,10 @@ void SpecificWorker::compute()
             {
                 qDebug() << bState.x << bState.z << target.x() << target.z() ;
                 path = grid.getOptimalPath(QVec::vec3(bState.x,0,bState.z), target);
-                for(auto &p: path)
+                for(auto &p: path){
                     greenPath.push_back(scene.addEllipse(p.x(),p.z(), 100, 100, QPen(Qt::green), QBrush(Qt::green)));
+										std::cout<<"hola"<<std::endl;
+								}
                 planReady = true;
                 
             }
