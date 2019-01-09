@@ -196,7 +196,6 @@ void SpecificWorker::go(const string &nodo, const float x, const float y, const 
     target[2] = y;
     targetReady.store(true);
     isAtTarget.store(false);
-    std::cout<<"he recibido algo"<<std::endl;
 }
 
 void SpecificWorker::turn(const float speed)

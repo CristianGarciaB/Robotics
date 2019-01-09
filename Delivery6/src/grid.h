@@ -152,7 +152,13 @@ class Grid
 		
 		std::list<QVec> getOptimalPath(const QVec &origen, const QVec &dest)
 		{
-			return djikstra(pointToGrid(origen.x(), origen.z()), pointToGrid(dest.x(), dest.z()));
+		Key keyDestino = pointToGrid(dest.x(), dest.z());
+		auto cellDestino = fmap.at(keyDestino);
+		if (!cellDestino.free)
+			keyDestino = buscarPosAlternativa(keyDestino);
+		
+		return djikstra(pointToGrid(origen.x(), origen.z()), pointToGrid(dest.x(), dest.z()));
+
 		}
      
 	private:
@@ -184,6 +190,44 @@ class Grid
 			int kz = (z-dim.VMIN)/dim.TILE_SIZE;
 			return Key(dim.HMIN + kx*dim.TILE_SIZE, dim.VMIN + kz*dim.TILE_SIZE);
 		};
+		
+		auto buscarPosAlternativa(Key k)
+		{
+			Key nuevoTarget;
+			
+			bool libre = false;
+			for (auto ed : neighbours(k)) 
+			{
+				if(!ed.second.free)
+				{
+					libre = true;
+					nuevoTarget = ed.first;
+				}
+			}
+			if (!libre)
+			{
+				std::cout<<"NO EXISTE FORMA TEÓRICA DE ACCEDER A LA TAG"<<std::endl;
+				int I = dim.TILE_SIZE;
+				Key posibleKey;
+				bool obtenido = false;
+				
+				for (auto ed : neighbours(k)) 
+				{
+					for (int x = ed.first.x; x < dim.HMAX && !obtenido; x = x+I) //Incrementar x hasta el MAX
+					{
+						posibleKey = pointToGrid(x, ed.first.z);
+						if (fmap.at(posibleKey).free)
+						{
+							nuevoTarget = posibleKey;
+							obtenido = true;
+						}
+					}
+				}
+			}
+			else
+				return nuevoTarget;
+			
+		}
 		
 		bool cercaPared(Cell c)
 		{
@@ -234,8 +278,6 @@ class Grid
 			}
 			return std::list<QVec>();
 		}
-		
-		buenos dias;
 		
 		std::list<QVec> orderPath(const std::vector<std::pair<uint,Key>> &previous, const Key &source, const Key &target)
 		{
