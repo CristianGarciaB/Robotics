@@ -152,13 +152,18 @@ class Grid
 		
 		std::list<QVec> getOptimalPath(const QVec &origen, const QVec &dest)
 		{
-		Key keyDestino = pointToGrid(dest.x(), dest.z());
-		auto cellDestino = fmap.at(keyDestino);
-		if (!cellDestino.free)
-			keyDestino = buscarPosAlternativa(keyDestino);
-		
-		return djikstra(pointToGrid(origen.x(), origen.z()), pointToGrid(dest.x(), dest.z()));
-
+			Key keyDestino = pointToGrid(dest.x(), dest.z());
+			Key keyOrigen = pointToGrid(origen.x(), origen.z());
+			std::cout<<"Coordinates robot  (on grid): "<<keyOrigen<<std::endl;
+			std::cout<<"Coordinates target (on grid): "<<keyDestino<<std::endl;
+			
+			auto cellDestino = fmap.at(keyDestino);
+			if (!cellDestino.free)
+				keyDestino = buscarPosAlternativa(keyDestino);
+			
+			std::cout<<"Coordinates new target (on grid): "<<keyDestino<<std::endl;
+			
+			return djikstra(keyOrigen, keyDestino);
 		}
      
 	private:
@@ -191,42 +196,85 @@ class Grid
 			return Key(dim.HMIN + kx*dim.TILE_SIZE, dim.VMIN + kz*dim.TILE_SIZE);
 		};
 		
-		auto buscarPosAlternativa(Key k)
+		bool esta(std::vector<Key> *vector, Key elemento)
+		{
+			bool esta = false;
+			
+			for (auto thing : *vector)
+				if(thing == elemento)
+					esta = true;
+				
+			return esta;
+		}
+		
+		void insertar(std::vector<Key>* vector, Key elemento)
+		{
+			if(!esta(vector, elemento))
+				vector->push_back(elemento);
+		}
+		
+		Key buscarPosAlternativa(Key k)
 		{
 			Key nuevoTarget;
+			std::vector<Key> analizadas;
+			std::vector<Key> noAnalizadas;
 			
 			bool libre = false;
 			for (auto ed : neighbours(k)) 
 			{
-				if(!ed.second.free)
+				if(ed.second.free)
 				{
 					libre = true;
 					nuevoTarget = ed.first;
 				}
+				else
+					insertar(&noAnalizadas, ed.first);
 			}
+
 			if (!libre)
 			{
-				std::cout<<"NO EXISTE FORMA TEÓRICA DE ACCEDER A LA TAG"<<std::endl;
+				std::cout<<"WARNING: The target seems to be sourrounded by obstacles so, theoretically, there is no way to reach it"<<std::endl;
 				int I = dim.TILE_SIZE;
-				Key posibleKey;
-				bool obtenido = false;
+				insertar(&analizadas, k);
+				bool encontrado = false;
 				
-				for (auto ed : neighbours(k)) 
+				while (!encontrado)
 				{
-					for (int x = ed.first.x; x < dim.HMAX && !obtenido; x = x+I) //Incrementar x hasta el MAX
+					Key posibleKey = noAnalizadas.front();
+					for (auto ed : neighbours(posibleKey))
 					{
-						posibleKey = pointToGrid(x, ed.first.z);
-						if (fmap.at(posibleKey).free)
+						if(!esta(&analizadas, ed.first))
 						{
-							nuevoTarget = posibleKey;
-							obtenido = true;
+							if(ed.second.free)
+							{
+								encontrado = true;
+								nuevoTarget = ed.first;
+							}
+							else
+								insertar(&noAnalizadas, ed.first);
 						}
+					}
+					noAnalizadas.erase(noAnalizadas.begin());
+				}
+			}
+			return nuevoTarget;
+			
+		}
+		
+		bool cercaObjetivo(Cell c, Key target)
+		{
+			for (auto ed : neighbours(c.first)) 
+			{
+				for (auto ed2 : neighbours(ed.first)) 
+				{
+					for (auto ed3 : neighbours(ed.first)) 
+					{
+						if(ed3.first == target)
+							return true;
 					}
 				}
 			}
-			else
-				return nuevoTarget;
-			
+			return false;
 		}
 		
 		bool cercaPared(Cell c)
@@ -245,7 +293,6 @@ class Grid
 		std::list<QVec> djikstra(const Key &source, const Key &target)
 		{
 			using Elem = std::pair<uint, Key>;
-			std::cout << "Keys " << source << target << " size" << fmap.size() << std::endl;
 			std::vector<uint> min_distance(fmap.size(), INT_MAX);
 			std::vector<Elem> previous(fmap.size(), std::make_pair(-1, Key()));
 			
@@ -267,12 +314,25 @@ class Grid
 				active_vertices.erase( active_vertices.begin() );
 				for (auto ed : neighbours(where)) 
 				{
-					if (min_distance[ed.second.id] > min_distance[fmap[where].id] + ed.second.cost && ed.second.free && !cercaPared(ed)) 
+					if (min_distance[ed.second.id] > min_distance[fmap[where].id] + ed.second.cost && ed.second.free) 
 					{
-						active_vertices.erase( { min_distance[ed.second.id], ed.first } );
-						min_distance[ed.second.id] = min_distance[fmap[where].id] + ed.second.cost;
-						previous[ed.second.id] = std::make_pair(fmap[where].id, where);
-						active_vertices.insert( { min_distance[ed.second.id], ed.first } );
+						if(!cercaObjetivo(ed, target))
+						{
+							if(!cercaPared(ed))
+							{
+								active_vertices.erase( { min_distance[ed.second.id], ed.first } );
+								min_distance[ed.second.id] = min_distance[fmap[where].id] + ed.second.cost;
+								previous[ed.second.id] = std::make_pair(fmap[where].id, where);
+								active_vertices.insert( { min_distance[ed.second.id], ed.first } );
+							}
+						}
+						else
+						{
+							active_vertices.erase( { min_distance[ed.second.id], ed.first } );
+							min_distance[ed.second.id] = min_distance[fmap[where].id] + ed.second.cost;
+							previous[ed.second.id] = std::make_pair(fmap[where].id, where);
+							active_vertices.insert( { min_distance[ed.second.id], ed.first } );
+						}
 					}
 				}
 			}
