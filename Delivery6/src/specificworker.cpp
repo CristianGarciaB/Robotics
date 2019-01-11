@@ -243,9 +243,9 @@ void SpecificWorker::newAprilTagAndPose(const tagsList &tags, const RoboCompGene
 void SpecificWorker::newAprilTag(const tagsList &tags)
 {
 	//subscribesToCODE
-	std::cout<<"TTTTTTTTTTTTAAAAAAAAAAAAAAAAAAGGGGGGGGGGGGGGGGGG"<<std::endl;
-	for(auto t:tags)
-		std::cout<<t.id<<" "<<t.tx<<" "<<t.ty<<" "<<t.tz<<std::endl;
+	std::cout<<"New tag received:"<<std::endl;
+	for(auto t : tags)
+		std::cout<<"ID: "<<t.id<<" X: "<<t.tx<<" Y: "<<t.ty<<" Z: "<<t.tz<<std::endl;
 	
 	isAtTarget = true;
 }
