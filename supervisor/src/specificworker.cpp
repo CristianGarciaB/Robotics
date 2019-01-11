@@ -46,7 +46,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	}
 	catch(std::exception e) { qFatal("Error reading config params"); }
 
-	for(int i=0; i<4; i++)
+	for(int i=0; i<NUM_TAGS; i++)
         {
             QString name = "target0" + QString::number(i);
             QVec r = innerModel->transform("world", name);
@@ -67,9 +67,11 @@ void SpecificWorker::compute()
     {
         if ( gotopoint_proxy->atTarget())
         {
-           indice = indice % 4;
-           std::cout<<"hola"<<std::endl;
+           std::cout<<"hola "<<indice<<std::endl;
            gotopoint_proxy->go("", myList[indice].x(), myList[indice].z(), 0);
+					 indice++;
+					 if (indice >= NUM_TAGS)
+						 indice = 0;
         }
     }
     catch(const Ice::Exception &e)

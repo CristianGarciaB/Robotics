@@ -108,7 +108,7 @@ void SpecificWorker::compute()
 					qDebug() << "Arrived to target";
 					differentialrobot_proxy->stopBase();
 					targetReady = false; 
-					//TODO si no lo ha visto, girarse hacia la apriultag
+					isAtTarget.store(true);
 				}
 				else
 					if(innerModel->transform("base", QVec::vec3(currentPoint.x(), 0, currentPoint.z()),"world").norm2() < 150)
@@ -195,6 +195,7 @@ void SpecificWorker::go(const string &nodo, const float x, const float y, const 
 {
 	target[0] = x;
 	target[2] = y;
+	planReady.store(false);
 	targetReady.store(true);
 	isAtTarget.store(false);
 }

@@ -43,8 +43,9 @@ public slots:
 	void compute();
 
 private:
+	const int NUM_TAGS = 4;
 	InnerModel *innerModel;
-        std::vector<QVec> myList;
+	std::vector<QVec> myList;
 
 };
 
