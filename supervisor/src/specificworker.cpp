@@ -67,7 +67,7 @@ void SpecificWorker::compute()
     {
         if ( gotopoint_proxy->atTarget())
         {
-           std::cout<<"hola "<<indice<<std::endl;
+           std::cout<<"Coordinates of target number "<<indice<<" sent to robot"<<std::endl;
            gotopoint_proxy->go("", myList[indice].x(), myList[indice].z(), 0);
 					 indice++;
 					 if (indice >= NUM_TAGS)
