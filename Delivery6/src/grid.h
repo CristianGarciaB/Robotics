@@ -42,7 +42,8 @@ class Grid
 		struct Dimensions
 		{
 			int TILE_SIZE = 200;
-			int HMIN=-2500, HMAX=2500, VMIN=-2500, VMAX=2500;
+			//int HMIN=-2500, HMAX=2500, VMIN=-2500, VMAX=2500;
+			int HMIN=-7100, HMAX=7100, VMIN=-5100, VMAX=6600;
 			
 			Dimensions(int tilesize, int hmin, int hmax, int vmin, int vmax)
 			{
@@ -157,11 +158,11 @@ class Grid
 			std::cout<<"Coordinates robot  (on grid): "<<keyOrigen<<std::endl;
 			std::cout<<"Coordinates target (on grid): "<<keyDestino<<std::endl;
 			
+			/*
 			auto cellDestino = fmap.at(keyDestino);
 			if (!cellDestino.free)
 				keyDestino = buscarPosAlternativa(keyDestino);
-			
-			std::cout<<"Coordinates new target (on grid): "<<keyDestino<<std::endl;
+			*/
 			
 			return djikstra(keyOrigen, keyDestino);
 		}
@@ -257,6 +258,8 @@ class Grid
 					noAnalizadas.erase(noAnalizadas.begin());
 				}
 			}
+			
+			std::cout<<"Coordinates new target (on grid): "<<nuevoTarget<<std::endl;
 			return nuevoTarget;
 			
 		}
@@ -314,9 +317,17 @@ class Grid
 				active_vertices.erase( active_vertices.begin() );
 				for (auto ed : neighbours(where)) 
 				{
-					if (min_distance[ed.second.id] > min_distance[fmap[where].id] + ed.second.cost && ed.second.free) 
+					if (ed.first == target)
+						{
+							active_vertices.erase( { min_distance[ed.second.id], ed.first } );
+							min_distance[ed.second.id] = min_distance[fmap[where].id] + ed.second.cost;
+							previous[ed.second.id] = std::make_pair(fmap[where].id, where);
+							active_vertices.insert( { min_distance[ed.second.id], ed.first } );
+					
+						}
+					if (min_distance[ed.second.id] > min_distance[fmap[where].id] + ed.second.cost) 
 					{
-						if(!cercaObjetivo(ed, target))
+					/*	if(!cercaObjetivo(ed, target))
 						{
 							if(!cercaPared(ed))
 							{
@@ -332,7 +343,26 @@ class Grid
 							min_distance[ed.second.id] = min_distance[fmap[where].id] + ed.second.cost;
 							previous[ed.second.id] = std::make_pair(fmap[where].id, where);
 							active_vertices.insert( { min_distance[ed.second.id], ed.first } );
+						}*/
+						
+						if (!cercaObjetivo(ed,target)) //Si está cerca del objetivo se admiten casillas ocupadas (Cuando el objetivo está "dentro" de una pared);
+						{
+							if (ed.second.free)
+							{
+								active_vertices.erase( { min_distance[ed.second.id], ed.first } );
+								min_distance[ed.second.id] = min_distance[fmap[where].id] + ed.second.cost;
+								previous[ed.second.id] = std::make_pair(fmap[where].id, where);
+								active_vertices.insert( { min_distance[ed.second.id], ed.first } );
+							}
 						}
+						else
+						{
+							active_vertices.erase( { min_distance[ed.second.id], ed.first } );
+							min_distance[ed.second.id] = min_distance[fmap[where].id] + ed.second.cost;
+							previous[ed.second.id] = std::make_pair(fmap[where].id, where);
+							active_vertices.insert( { min_distance[ed.second.id], ed.first } );
+						}
+						
 					}
 				}
 			}

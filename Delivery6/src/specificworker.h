@@ -83,7 +83,7 @@ private:
     void updateVisitedCells(int x, int z);
     void updateOccupiedCells(const RoboCompGenericBase::TBaseState &bState, const RoboCompLaser::TLaserData &ldata);
     void checkTransform(const RoboCompGenericBase::TBaseState &bState);
-    
+		
     /// Grid
     struct TCell
     {

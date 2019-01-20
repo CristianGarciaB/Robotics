@@ -1,5 +1,5 @@
 CommonBehavior.Endpoints=tcp -p 11067
-InnerModelPath = /home/cristian/robocomp/files/innermodel/simpleworld.xml
+InnerModelPath = /home/cristian/robocomp/files/innermodel/informatica-tercio.xml
 
 # Endpoints for implemented interfaces
 GotoPoint.Endpoints=tcp -p 12000

@@ -49,14 +49,20 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	planReady.store(false);
 	
 	// Scene
-	scene.setSceneRect(-2500, -2500, 5000, 5000);
+	//SIMPLEWORLD.XML
+	//scene.setSceneRect(-2500, -2500, 5000, 5000);
+	//INFORMATICA-TERCIO.XML
+	scene.setSceneRect(-7100, -5100,11700, 14200); 
 	view.setScene(&scene);
 	view.scale(1, -1);
 	view.setParent(scrollArea);
 	//view.setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));
 	view.fitInView(scene.sceneRect(), Qt::KeepAspectRatio );
 	
-	grid.initialize( TDim{ tilesize, -2500, 2500, -2500, 2500}, TCell{0, true, false, nullptr, 0.} );
+	//SIMPLEWORLD.XML
+	//grid.initialize( TDim{ tilesize, -2500, 2500, -2500, 2500}, TCell{0, true, false, nullptr, 0.} );
+	//INFORMATICA-TERCIO.XML
+	grid.initialize( TDim{ tilesize, -7100, 7100,-5100, 6600}, TCell{0, true, false, nullptr, 0.} );
 	
 	for(auto &[key, value] : grid)
 	{
@@ -111,7 +117,7 @@ void SpecificWorker::compute()
 					isAtTarget.store(true);
 				}
 				else
-					if(innerModel->transform("base", QVec::vec3(currentPoint.x(), 0, currentPoint.z()),"world").norm2() < 150)
+					if(innerModel->transform("base", QVec::vec3(currentPoint.x(), 0, currentPoint.z()),"world").norm2() < 300)
 					{
 						currentPoint = path.front();
 						path.pop_front();
@@ -151,7 +157,7 @@ void SpecificWorker::compute()
 								QVec r = innerModel->transform("base", QVec::vec3(target.x(), 0, target.z()),"world");
 								
 								
-								if (distancia < 100)
+								if (distancia < 300)
 								{
 									targetReady = false;
 									differentialrobot_proxy->stopBase();
@@ -226,6 +232,7 @@ void SpecificWorker::setPick(const Pick &myPick)
 	target[2] = myPick.z;
 	target[1] = 0;
 	qDebug() << __FILE__ << __FUNCTION__ << myPick.x << myPick.z ;
+	differentialrobot_proxy->stopBase();
 	targetReady = true;
 	planReady = false;
 	for(auto gp: greenPath)
@@ -306,6 +313,36 @@ void SpecificWorker::draw()
 		// 			value.rect->setBrush(Qt::lightGray);
 		if(value.free == false)
 			value.rect->setBrush(Qt::darkRed);
+		/*
+		//CON CAMBIO DE POS
+		//Target 0
+		if (key.x == 670 && key.z == -3140)
+			value.rect->setBrush(Qt::darkGreen);
+		//Target 1
+		if (key.x == -5000 && key.z == -970)
+			value.rect->setBrush(Qt::darkGreen);
+		//Target 2
+		if (key.x == -3180 && key.z == 6310)
+			value.rect->setBrush(Qt::darkGreen);
+		//Target 3
+		if (key.x == 3190 && key.z == 4630)
+			value.rect->setBrush(Qt::darkGreen);
+		*/
+		
+		//SIN CAMBIO DE POS
+		//Target 0
+		if (key.x == 740 && key.z == -3210)
+			value.rect->setBrush(Qt::darkGreen);
+		//Target 1
+		if (key.x == -5070 && key.z == -1110)
+			value.rect->setBrush(Qt::darkGreen);
+		//Target 2
+		if (key.x == -3180 && key.z == 6240)
+			value.rect->setBrush(Qt::darkGreen);
+		//Target 3
+		if (key.x == 3120 && key.z == 4700)
+			value.rect->setBrush(Qt::darkGreen);
+		
 	}
 	view.show();
 }
